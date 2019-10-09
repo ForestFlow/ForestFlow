@@ -1,0 +1,113 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  import: "com.dreamworks.forestflow.serving.interfaces.TensorData"
+  flat_package: true
+  single_file: true
+};
+
+enum TensorType {
+    Float16 = 1;
+    Float32 = 2;
+    Float64 = 3;
+    Int8 = 4;
+    Int16 = 5;
+    Int32 = 6;
+    Int64 = 7;
+    String = 8;
+    Bool = 9;
+    Bytes = 10;
+}
+
+message StringData {
+    option (scalapb.message).extends = "TensorData[String]";
+    repeated string data = 1;
+    optional TensorType tensorType = 2 [default = String];
+}
+
+message Int8Data {
+    option (scalapb.message).extends = "TensorData[Int]";
+    repeated int32 data = 1;
+    optional TensorType tensorType = 2 [default = Int8];
+}
+
+message Int16Data {
+    option (scalapb.message).extends = "TensorData[Int]";
+    repeated int32 data = 1;
+    optional TensorType tensorType = 2 [default = Int16];
+}
+
+message Int32Data {
+    option (scalapb.message).extends = "TensorData[Int]";
+    repeated int32 data = 1;
+    optional TensorType tensorType = 2 [default = Int32];
+}
+
+message Int64Data {
+    option (scalapb.message).extends = "TensorData[Long]";
+    repeated int64 data = 1;
+    optional TensorType tensorType = 2 [default = Int64];
+}
+
+message Float16Data {
+    option (scalapb.message).extends = "TensorData[Float]";
+    repeated float data = 1;
+    optional TensorType tensorType = 2 [default = Float16];
+}
+
+message Float32Data {
+    option (scalapb.message).extends = "TensorData[Float]";
+    repeated float data = 1;
+    optional TensorType tensorType = 2 [default = Float32];
+}
+
+message Float64Data {
+    option (scalapb.message).extends = "TensorData[Double]";
+    repeated double data = 1;
+    optional TensorType tensorType = 2 [default = Float64];
+}
+
+message BoolData {
+    option (scalapb.message).extends = "TensorData[Boolean]";
+    repeated bool data = 1;
+    optional TensorType tensorType = 2 [default = Bool];
+}
+
+message ByteData {
+    option (scalapb.message).extends = "TensorData[_root_.com.google.protobuf.ByteString]";
+    repeated bytes data = 1;
+    optional TensorType tensorType = 2 [default = Bytes];
+}
+
+message Tensor {
+    oneof sealed_value {
+        StringData String = 1;
+        Int8Data Int8 = 2;
+        Int16Data Int16 = 3;
+        Int32Data Int32 = 4;
+        Int64Data Int64 = 5;
+        Float16Data Float16 = 6;
+        Float32Data Float32 = 7;
+        Float64Data Float64 = 8;
+        BoolData Bool = 9;
+        ByteData Byte = 10;
+    }
+}
+message Datum {
+    repeated Tensor tensors = 1;
+}

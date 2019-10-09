@@ -1,0 +1,102 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: ff-serving
+  name: ff-serving
+  namespace: forestflow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ff-serving
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ff-serving
+        actorSystemName: ff-serving
+    spec:
+      containers:
+        - name: ff-serving
+          image: docker.anim.dreamworks.com/dwadba/forestflow-serving:0.0.1--0.1
+          imagePullPolicy: Always
+          #health
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: management
+          ports:
+            # akka remoting
+            - name: remoting
+              containerPort: 2552
+              protocol: TCP
+            # akka-management bootstrap
+            # must match up with contact-point-discovery.port-name for bootstrap
+            - name: management
+              containerPort: 8558
+              protocol: TCP
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+          #namespace
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS_CONFIG
+              value: "d-kf-athena-studio.db.gld.dreamworks.net:9092"
+            - name: AKKA_MANAGEMENT_HOSTNAME_CONFIG 
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP 
+            #- name: AKKA_MANAGEMENT_BIND_HOSTNAME_CONFIG
+            #  value: "0.0.0.0"
+
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-reader
+  namespace: forestflow
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: forestflow
+subjects:
+  # Create the default user for the forestflow namespace
+  - kind: User
+    name: system:serviceaccount:forestflow:default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ff-serving
+spec:
+  selector:
+    app: ff-serving
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8090
+  - name: management
+    protocol: TCP
+    port: 8080
+    targetPort: 8558

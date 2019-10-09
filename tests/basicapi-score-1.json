@@ -1,0 +1,19 @@
+{
+  "schema": [
+    { "type": "Float64", "fields": ["TemperatureCelcius", "ExhaustVacuumHg", "AmbientPressureMillibar", "RelativeHumidity"] }
+  ],
+  "datum": [
+    {
+      "tensors": [
+        { "Float64": { "data": [33.2, 60.5, 1010.7, 30]  } }
+      ]
+    },
+    {
+      "tensors": [
+        { "Float64": { "data": [29.6, 62, 998.5, 40.62]  } }
+      ]
+    }
+  ],
+  "configs" : {"reqid":  "123-456-789"}
+}
+
