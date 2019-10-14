@@ -86,5 +86,5 @@ Relying on standards, for example using GraphPipe’s specification means immedi
 
 Go to the [Quick Start Guide](./docs/quickstart.md) to get started then dive a little deeper and 
 learn about [ForestFlow Concepts](./docs/concepts.md) and how you can 
-[tailor]((./docs/concepts.md#servable-model-deployment)) it to fit your own use-cases.
+[tailor](./docs/concepts.md#servable-model-deployment) it to fit your own use-cases.
 
