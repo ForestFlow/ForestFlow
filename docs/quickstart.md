@@ -174,11 +174,11 @@ Let's bring up a single-node local instance of ForestFlow
     }
    ```
    
-   We didn't explicitly deploy a Contract here as is typically [recommended](#creating-a-contract).
+   We didn't explicitly deploy a Contract here as is typically [recommended](./concepts.md#creating-a-contract).
    ForestFlow will automatically setup a Contract with default routing and expiration policy settings if you don't provide one.
    Replying on this behavior is not recommended as it sets you up with ForestFlow defaults which might change in future releases.
    
-   It's best to [setup the Contract](#creating-a-contract) first and then deploy the Servable. Nonetheless, we have one setup and we can use it to 
+   It's best to [setup the Contract](./concepts.md#creating-a-contract) first and then deploy the Servable. Nonetheless, we have one setup and we can use it to 
    score against.
 
    You can also inspect the Servables under a Contract. In this case, we'll see a single Servable deployed
@@ -323,7 +323,7 @@ Let's bring up a single-node local instance of ForestFlow
   
     ForstFlow allows for multiple Servables to be deployed under the same Contract and for a routing strategy to determine which
   Servable responds to user requests and if the remaining Servables shadow the inference request for logging and performance 
-  monitoring purposes. See the section on [Creating a Contract](#creating-a-contract) and routing for more details. 
+  monitoring purposes. See the section on [Creating a Contract](./concepts.md#creating-a-contract) and routing for more details. 
 
 1. We can also inspect some stats ForestFlow collects about the use of Servables within a Contract
     ```baseh
@@ -353,4 +353,4 @@ Let's bring up a single-node local instance of ForestFlow
     ```
 
 Finally, you can also build and run ForestFlow in a container (docker, podman) and we provide scripts to help with this process.
-See [Creating an OCI-compliant Image](#creating-an-oci-compliant-image)
+See [Creating an OCI-compliant Image](./buildconfig.md#creating-an-oci-compliant-image)
