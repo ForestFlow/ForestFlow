@@ -10,48 +10,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<img src="./resources/forestflow_logo_text.png" alt="ForestFlow Logo" width="478" height="139"/>
-
-ForestFlow is a scalable policy-based cloud-native machine learning model server. ForestFlow strives to strike a balance between the flexibility it offers data scientists and the adoption of standards while reducing friction between Data Science, Engineering and Operations teams.
-
-ForestFlow is policy-based because we believe automation for Machine Learning/Deep Learning operations is critical to scaling human resources. ForestFlow lends itself well to workflows based on automatic retraining, version control, A/B testing, Canary Model deployments, Shadow testing, automatic time or performance-based model deprecation and time or performance-based model routing in real-time.
-
-Our aim with ForestFlow is to provide data scientists a simple means to deploy models to a production system with minimal friction accelerating the development to production value proposition.
-
-To achieve these goals, ForestFlow looks to address the proliferation of model serving formats and standards for inference API specifications by adopting, what we believe, are currently, or are becoming widely adopted open source frameworks, formats, and API specifications. We do this in a pluggable format such that we can continue to evolve ForestFlow as the industry and space matures and we see a need for additional support.
-
-
-
-# Contents
-
-  - [Overview](./docs/overview.md)
-      - [Why ForestFlow?](./docs/overview.md#why-forestflow)
-      - [Model Deployment](./docs/overview.md#model-deployment)
-      - [Inference](./docs/overview.md#inference)
-      - [Currently Supported model formats](./docs/overview.md#currently-supported-model-formats)
-  - [Quick Start Guide](./docs/quickstart.md)
-  - [Building and Configuration](./docs/buildconfig.md)
-      - [Building ForestFlow](./docs/buildconfig.md#building-forestflow)
-         - [Create JAR without Kubernetes dependencies](./docs/buildconfig.md#create-jar-without-kubernetes-dependencies)
-         - [Create a JAR with Kubernetes dependencies](./docs/buildconfig.md#create-a-jar-with-kubernetes-dependencies)
-      - [ForestFlow Configuration](./docs/buildconfig.md#forestflow-configuration)
-      - [Creating an OCI-compliant Image](./docs/buildconfig.md#creating-an-oci-compliant-image)
-  - [Inference](./docs/inference.md)
-      - [Servable implementation interface support matrix](./docs/inference.md#servable-implementation-interface-support-matrix)
-      - [Inference - Using the BASIC REST API](./docs/inference.md#inference---using-the-basic-rest-api)
-      - [Inference - Using the GraphPipe API](./docs/inference.md#inference---using-the-graphpipe-api)
-  - [Concepts](./docs/concepts.md)
-      - [A ForestFlow Cluster](./docs/concepts.md#a-forestflow-cluster)
-          - [Servable](./docs/concepts.md#servable)
-          - [Fully Qualified Release Version (FQRV)](./docs/concepts.md#fully-qualified-release-version-fqrv)
-      - [Servable (Model) Deployment](./docs/concepts.md#servable-model-deployment)
-          - [Creating a Contract](./docs/concepts.md#creating-a-contract)
-          - [Creating a Servable](./docs/concepts.md#creating-a-servable)
-
-
 # Overview
 ## Why ForestFlow?
-Continuous deployment and lifecycle management of Machine Learning/Deep Learning models is currently widely accepted as a primary bottleneck for gaining value out of ML projects.
 
 We first set out to find a solution to deploy our own models. The model server implementations we found were either proprietary, closed-source solutions or had too many limitations in what we wanted to achieve.
 The main concerns for creating ForestFlow can be summarized as:
@@ -78,13 +38,9 @@ For inference, we’ve adopted a similar approach. ForestFlow standardizes on th
 
 Relying on standards, for example using GraphPipe’s specification means immediate availability of client libraries in a variety of languages that already support working with ForestFlow; see [GraphPipe clients](https://oracle.github.io/graphpipe/#/guide/clients/overview).
 
-## Currently Supported model formats (MLFLow flavors)
+## Currently Supported model formats
  - H2O - Mojo Model
  - TensorFlow - Planned
  - PFA - Planned
  - Spark ML Models and Pipelines via [Aardpfark](https://github.com/CODAIT/aardpfark) and PFA - Planned
-
-Go to the [Quick Start Guide](./docs/quickstart.md) to get started then dive a little deeper and 
-learn about [ForestFlow Concepts](./docs/concepts.md) and how you can 
-[tailor]((./docs/concepts.md#servable-model-deployment)) it to fit your own use-cases.
-
+ 
