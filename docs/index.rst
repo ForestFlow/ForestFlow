@@ -55,6 +55,7 @@ User Documentation
    Building and Configuration <buildconfig>
    Inference <inference>
    Concepts <concepts>
+   Contributing to ForestFlow <contributing>
 
 
 .. _Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0

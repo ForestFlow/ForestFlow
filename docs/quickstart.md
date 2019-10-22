@@ -35,7 +35,7 @@ Let's bring up a single-node local instance of ForestFlow
 1. Bring up ForestFlow
    
    This is where ForestFlow will store its state if using default persistence plugin for local install
-   See what the version number is defined as in the property `forestflow-latest.version` in [pom.xml](./../pom.xml)
+   See what the version number is defined as in the property `forestflow-latest.version` in [pom.xml](https://github.com/dreamworksanimation/ForestFlow/tree/master/pom.xml)
    
    Assuming it's 0.2.1, run the following
     
@@ -85,7 +85,7 @@ Let's bring up a single-node local instance of ForestFlow
    
    As the tutorial explains, the goal is to predict the energy output given some input features.
    
-   Have a look at the servable deployment definition [./../tests/basicapi-local-h2o.json](./../tests/basicapi-local-h2o.json)
+   Have a look at the servable deployment definition [https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-local-h2o.json](https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-local-h2o.json)
    ```json
     {
       "path": "file://<local path for repo>/tests",
@@ -182,7 +182,7 @@ Let's bring up a single-node local instance of ForestFlow
    score against.
 
    You can also inspect the Servables under a Contract. In this case, we'll see a single Servable deployed
-   ```base
+   ```bash
     http http://${IP}:${PORT}/samples/energy_output/0/list
    ``` 
    
@@ -204,7 +204,7 @@ Let's bring up a single-node local instance of ForestFlow
 1. Let's score against the Servable we've deployed
 
    Let's get some metadata about the Servable we have deployed
-   ```base
+   ```bash
    http http://${IP}:${PORT}/samples/energy_output/0/StackedEnsemble_AllModels_AutoML_20191002_103122/metadata
    ```
   
@@ -239,7 +239,7 @@ Let's bring up a single-node local instance of ForestFlow
     Notice the Servable takes an input Tensor of type Float64 with 4 fields: TemperatureCelcius, ExhaustVacuumHg, AmbientPressureMillibar, and RelativeHumidity
   
     Scoring against the model represented by the Servable we deployed is fairly simply.    
-    Have a look at the contents of [tests/basicapi-score-1.json ](./../tests/basicapi-score-1.json)
+    Have a look at the contents of [tests/basicapi-score-1.json ](https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-score-1.json)
   
     ```json
     {
@@ -268,7 +268,7 @@ Let's bring up a single-node local instance of ForestFlow
     The 2nd row does the same thing supplying 29.6 for the temp and so and so forth.
    
     Scoring against the model is as simple as passing this as the body to the score API
-    ```baseh
+    ```bash
     http http://${IP}:${PORT}/samples/energy_output/0/score < tests/basicapi-score-1.json
     ```
   
@@ -326,7 +326,7 @@ Let's bring up a single-node local instance of ForestFlow
   monitoring purposes. See the section on [Creating a Contract](./concepts.md#creating-a-contract) and routing for more details. 
 
 1. We can also inspect some stats ForestFlow collects about the use of Servables within a Contract
-    ```baseh
+    ```bash
     http http://${IP}:${PORT}/samples/energy_output/0/stats
     ```
   

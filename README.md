@@ -47,7 +47,7 @@ To achieve these goals, ForestFlow looks to address the proliferation of model s
       - [Servable (Model) Deployment](./docs/concepts.md#servable-model-deployment)
           - [Creating a Contract](./docs/concepts.md#creating-a-contract)
           - [Creating a Servable](./docs/concepts.md#creating-a-servable)
-
+  - [Contributing to ForestFlow](#contributing)
 
 # Overview
 ## Why ForestFlow?
@@ -63,10 +63,6 @@ The main concerns for creating ForestFlow can be summarized as:
    - We wanted the ability to treat inference requests as a stream and log predictions as a stream. This allows us to test new models against a stream of older infer requests.
    - We wanted to avoid the "super-hero" data scientist that knows how to dockerize an application, apply the science, build an API and deploy to production. This does not scale well and is difficult to support and maintain.
    - Most of all, we wanted repeatability. We didn't want to re-invent the wheel once we had support for a specific framework. 
-
-While ForestFlow has already delivered tremendous value for us in production, it's still in early phases of development as there are plenty of features we have planned and this continues to evolve at a rapid pace. 
-We appreciate and consistently, make use of and, contribute open source projects back to the community. We realize the problems we're facing aren't unique to us so we welcome feedback, ideas and contributions from the community to help develop our roadmap and implementation for ForestFlow.
-Check out ForestFlow on Github for a getting started guide and more information. 
 
 ## Model Deployment
 For model deployment, ForestFlow supports models described via [MLFLow Model](https://mlflow.org/docs/latest/models.html) format which allows for different flavors i..e, frameworks & storage formats.
@@ -87,4 +83,14 @@ Relying on standards, for example using GraphPipe’s specification means immedi
 Go to the [Quick Start Guide](./docs/quickstart.md) to get started then dive a little deeper and 
 learn about [ForestFlow Concepts](./docs/concepts.md) and how you can 
 [tailor](./docs/concepts.md#servable-model-deployment) it to fit your own use-cases.
+
+
+# Contributing
+While ForestFlow has already delivered tremendous value for us in production, it's still in early phases of development
+as there are plenty of features we have planned and this continues to evolve at a rapid pace. 
+We appreciate and consistently, make use of and, contribute open source projects back to the community. 
+We realize the problems we're facing aren't unique to us so we welcome feedback, ideas and contributions from the 
+community to help develop our roadmap and implementation of ForestFlow.
+
+Check out [Contribution Guide](./docs/contributing.md) for more details on contributing to ForestFlow.
 

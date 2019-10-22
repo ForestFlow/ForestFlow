@@ -25,11 +25,11 @@ This also keeps ForestFlow's API flexible enough to incrementally adapt more int
 
 ## Inference - Using the BASIC REST API
 The BASIC REST API relies on ProtoBuf definitions but exposes a JSON interface for ease of use.
-The proto schema is defined in [InferenceRequest.proto](./../core/src/main/protobuf/InferenceRequest.proto)
+The proto schema is defined in [InferenceRequest.proto](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
 A BASIC REST API Inference Request takes:
   - A Tensor Schema which maps Tensors and their types to a list of field names
-  - An Array of [Datums](./../core/src/main/protobuf/Tensor.proto) which in turn is an Array of Tensors
+  - An Array of [Datums](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Tensor.proto) which in turn is an Array of Tensors
   - The Tensors themselves carrying features. A Tensor per data type.
   - A map<string, string> of configs. Configs can be used to supply data used when logging model predictions or to supply additional configuration parameters to Servables for inference requests.
     The keys in the config map are matched on with logging settings keys for logging predictions.
