@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--suppress MavenModelInspection -->
+    <parent>
+        <artifactId>forestflow</artifactId>
+        <groupId>com.dreamworks.forestflow</groupId>
+        <!--suppress MavenPropertyInParent -->
+        <version>${forestflow-latest.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>forestflow-core</artifactId>
+    <version>${forestflow-latest.version}</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <h2o.version>3.22.0.2</h2o.version>
+        <jgit.version>5.2.1.201812262042-r</jgit.version>
+        <jgit-lfs.version>5.2.1.201812262042-r</jgit-lfs.version>
+        <circe-yaml.version>0.9.0</circe-yaml.version>
+        <circe-generic.version>0.10.0</circe-generic.version>
+        <scalapb.version>0.9.0</scalapb.version>
+        <commons-io.version>2.6</commons-io.version>
+        <flatbuffers-java.version>1.11.0</flatbuffers-java.version>
+        <download-maven-plugin.version>1.4.2</download-maven-plugin.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <maven-compiler-plugin.verion>3.8.1</maven-compiler-plugin.verion>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.dreamworks.forestflow</groupId>
+            <artifactId>forestflow-common</artifactId>
+            <version>${forestflow-latest.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java -->
+        <dependency>
+            <groupId>com.google.flatbuffers</groupId>
+            <artifactId>flatbuffers-java</artifactId>
+            <version>${flatbuffers-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.circe</groupId>
+            <artifactId>circe-yaml_${scala.compat.version}</artifactId>
+            <version>${circe-yaml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>scala-library</artifactId>
+                    <groupId>org.scala-lang</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.circe/circe-generic -->
+        <dependency>
+            <groupId>io.circe</groupId>
+            <artifactId>circe-generic_${scala.compat.version}</artifactId>
+            <version>${circe-generic.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.circe</groupId>
+            <artifactId>circe-generic-extras_${scala.compat.version}</artifactId>
+            <version>${circe-generic.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit.feature/org.eclipse.jgit.lfs -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.lfs</artifactId>
+            <version>${jgit-lfs.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/ai.h2o/h2o-genmodel -->
+        <dependency>
+            <groupId>ai.h2o</groupId>
+            <artifactId>h2o-genmodel</artifactId>
+            <version>${h2o.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>gson</artifactId>
+                    <groupId>com.google.code.gson</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--        <dependency>
+                    <groupId>ai.h2o</groupId>
+                    <artifactId>h2o-genmodel-ext-xgboost</artifactId>
+                    <version>${h2o.version}</version>
+                </dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/ai.h2o/h2o-core -->
+        <dependency>
+            <groupId>ai.h2o</groupId>
+            <artifactId>h2o-core</artifactId>
+            <version>${h2o.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>gson</artifactId>
+                    <groupId>com.google.code.gson</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.thesamet.scalapb</groupId>
+            <artifactId>scalapb-runtime_${scala.compat.version}</artifactId>
+            <version>${scalapb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.thesamet.scalapb</groupId>
+            <artifactId>scalapbc_${scala.compat.version}</artifactId>
+            <version>${scalapb.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <plugins>
+            <!-- This plugin compiles Java files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.verion}</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>compile-java-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven-scala-plugin.version}</version>
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <args>
+                        <arg>-target:jvm-1.8</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+            <!-- ScalaPB Assuming scalapbc release exists! -->
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>${download-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://github.com/scalapb/ScalaPB/releases/download/v${scalapb.version}/scalapbc-${scalapb.version}.zip</url>
+                            <unpack>true</unpack>
+                            <outputDirectory>${project.build.directory}/scalapbc</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-maven-plugin.version}</version>
+                <configuration>
+                    <protoSourceRoot>${project.basedir}/src/main/protobuf</protoSourceRoot>
+                    <pluginId>scala</pluginId>
+                    <protocExecutable>${project.build.directory}/scalapbc/scalapbc-${scalapb.version}/bin/scalapbc</protocExecutable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile-custom</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.thesamet.scalapb</groupId>
+                        <artifactId>scalapb-runtime_${scala.compat.version}</artifactId>
+                        <version>${scalapb.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

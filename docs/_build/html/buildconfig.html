@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Getting started &#8212; ForestFlow  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Inference" href="inference.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+--><div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>We provide scripts to build ForestFlow for use in local, or custom distributed clusters, or specifically for <a class="reference external" href="https://kubernetes.io/">Kubernetes</a>.
+The result of a build is a JAR with all dependencies included. We also provide <a class="reference external" href="https://buildah.io/">Buildah</a> <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh">scripts</a> for building OCI-compatible images that you can run
+using container engines such as <a class="reference external" href="https://podman.io/">podman</a> and <a class="reference external" href="https://www.docker.com/">docker</a> etc..</p>
+<p><a name="build-requirements">Build requirements:</a></p>
+<ul class="simple">
+<li>Java 11 (tested with <a class="reference external" href="https://openjdk.java.net/">openjdk</a>)</li>
+<li><a class="reference external" href="https://www.apache.org/">Maven</a></li>
+</ul>
+<p><a name="image-build-requirements">Container (OCI) image build requirements:</a></p>
+<ul class="simple">
+<li><a class="reference external" href="https://buildah.io/">Buildah</a></li>
+<li><a class="reference external" href="https://podman.io/">Podman</a></li>
+</ul>
+<div class="section" id="building-forestflow">
+<h2>Building ForestFlow<a class="headerlink" href="#building-forestflow" title="Permalink to this headline">¶</a></h2>
+<p>Have a look at <a class="reference external" href="#build-requirements">Build Requirements</a> for essential build dependencies.</p>
+<div class="section" id="create-jar-without-kubernetes-dependencies">
+<h3>Create JAR without Kubernetes dependencies<a class="headerlink" href="#create-jar-without-kubernetes-dependencies" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./../buildah/.build-local.sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-jar-with-kubernetes-dependencies">
+<h3>Create a JAR with Kubernetes dependencies<a class="headerlink" href="#create-a-jar-with-kubernetes-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>This will include Kubernetes-specific dependencies for cluster discovery</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./../buildah/.build-kubernetes.sh
+</pre></div>
+</div>
+<p>There is no harm in using the Kubernetes-specific build locally however note that your JAR file will have more
+dependencies and is subsequently larger in size.</p>
+</div>
+</div>
+<div class="section" id="forestflow-configuration">
+<h2>ForestFlow Configuration<a class="headerlink" href="#forestflow-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Controlling what ForestFlow does and how it looks for nodes to join as a cluster, or simply come up with a single local
+instance is all based on configuration properties defined in <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/serving/src/main/resources/application.conf">application.conf</a></p>
+<p>ForestFlow uses <a class="reference external" href="https://github.com/lightbend/config">Lightbend Config</a>, formerly known as Typesafe Config, for all its configuration properties.
+The configuration defined in the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/serving/src/main/resources/application.conf">application.conf</a> controls how
+ForestFlow clustering works (custom/local vs K8s), where it persists data, and where (<a class="reference external" href="https://kafka.apache.org/">Kafka cluster</a>) predictions are logged.</p>
+<p>The configuration has 3 main sections (defaults, local, and K8s). ForestFlow will always load configuration values from the defaults section.
+ForstFlow will conditionally load the <code class="docutils literal notranslate"><span class="pre">local</span></code> configs or <code class="docutils literal notranslate"><span class="pre">K8s</span></code> based on the value of the environment variable <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG</span></code></p>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG=local</span></code> will load local configs.</p>
+<p>Description of configuration sections:</p>
+<ul>
+<li><p class="first">defaults:</p>
+<p>Always loaded.</p>
+<p>This provides necessary defaults for most ForestFlow configurations.
+Some of these can be changed based on your use case. Others are necessary and cannot be removed or changed.
+We recommend only adjusting these after you’re comfortable running and operating ForestFlow and AKKA Clusters.
+We provide sensible defaults for most parameters.
+We also provide environment variable overrides for the parameters that are meant to be user-configurable.</p>
+</li>
+<li><p class="first">local</p>
+<p>Conditionally loaded if  <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG=local</span></code></p>
+<p>This is meant to simplify a local ForestFlow instance or a custom deployment without much opinion around discovery.
+You can just as easily bring up a single node on a single machine or multiple nodes on a single host or across multiple
+servers. The options are fairly open. Local does take some assumption about where data is persisted that you’ll have
+to override for production deployments in this mode. The K8s section provides an example using the <code class="docutils literal notranslate"><span class="pre">jdbc-journal</span></code> and
+<code class="docutils literal notranslate"><span class="pre">jdbc-snapshot-store</span></code> plugins for persistence. This is a good approach.  If using JDBC for persistence, the JDBC
+properties are defined in <code class="docutils literal notranslate"><span class="pre">defaults.slick</span></code> in the application.conf.</p>
+</li>
+<li><p class="first">K8s</p>
+<p>Conditionally loaded if  <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG=K8s</span></code></p>
+<p>This section is custom-tailored for a Kubernetes-based deployment. Note that you must have built the JAR using the
+K8s maven profile (or via the build-kubernetes.sh script which does exactly that to get the necessary dependencies for
+Kubernetes API-based node discovery for cluster deployments.</p>
+<p>This also assumes a JDBC-based persistence model for preserving cluster state. The JDBC properties are defined in <code class="docutils literal notranslate"><span class="pre">defaults.slick</span></code>
+in the application.conf.</p>
+</li>
+</ul>
+<p>You have a lot of control over how you want to run ForestFlow but we provide a few defaults:</p>
+<ul>
+<li><p class="first">Logging</p>
+<p>ForestFlow uses Kafka for prediction logging. To use this, you must supply the following environment variables
+so ForestFlow knows where to log <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Prediction.proto">Prediction</a> messages to:</p>
+<ul>
+<li><p class="first">KAFKA_BOOTSTRAP_SERVERS_CONFIG</p>
+<p>List of Kafka brokers</p>
+</li>
+<li><p class="first">KAFKA_PREDICTION_LOGGER_BASIC_TOPIC_CONFIG</p>
+<p>Kafka topic to use when logging BASIC REST API-based inference requests and responses.</p>
+</li>
+<li><p class="first">KAFKA_PREDICTION_LOGGER_GRAPHPIPE_TOPIC_CONFIG</p>
+<p>Kafka topic to use when logging GraphPipe-based inference requests and responses.</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Persistence</p>
+<p>Any AKKA persistene plugin can be used.</p>
+<p>For local, <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG=local</span></code>, installs we default to a local leveldb using <code class="docutils literal notranslate"><span class="pre">akka.persistence.journal.leveldb</span></code>
+This is good for quick tests but doesn’t really offer any cluster-external persistence storage guarantees.
+We recommend overriding this by supplying values for the environment variables controlling <code class="docutils literal notranslate"><span class="pre">journal</span></code> and <code class="docutils literal notranslate"><span class="pre">snapshot</span></code> persistence.</p>
+<p>Exxample:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">AKKA_PERSISTENCE_JOURNAL_PLUGIN</span><span class="o">=</span><span class="n">jdbc</span><span class="o">-</span><span class="n">journal</span>
+<span class="n">AKKA_PERSISTENCE_SNAPSHOT_STORE_PLUGIN</span><span class="o">=</span><span class="n">jdbc</span><span class="o">-</span><span class="n">snapshot</span><span class="o">-</span><span class="n">store</span>
+</pre></div>
+</div>
+<p>This is the default for K8s, <code class="docutils literal notranslate"><span class="pre">APPLICATION_ENVIRONMENT_CONFIG=K8s</span></code></p>
+<p>The specifics of which database to connect to and how is defined in <code class="docutils literal notranslate"><span class="pre">defaults.slick</span></code> in application.conf</p>
+</li>
+<li><p class="first">Clustering</p>
+<p>You can run ForestFlow as a single instance, or scale it horizontally across multiple nodes. To form a Cluster of nodes
+, nodes have to be able to “find”, aka. discover, each other. This can be done in a myriad of different ways; most common
+being DNS, Kubernetes API, Consul, or a simple list of IPs.</p>
+<p>ForestFlow uses Lightbend’s Akka Cluster Bootstrap libraries to offer the most flexibility and battle tested APIs.
+As of this writing, Lightbend’s Akka Discovery supports Simple IP list, DNS, Kubernetes, Consul, Marathon, and AWS.</p>
+<p>See <a class="reference external" href="https://doc.akka.io/docs/akka-management/current/discovery/index.html">here</a> for more details.</p>
+<p>ForestFlow defaults to <code class="docutils literal notranslate"><span class="pre">local-cluster</span></code> when the application environment is set to <code class="docutils literal notranslate"><span class="pre">local</span></code> and defaults to <code class="docutils literal notranslate"><span class="pre">kubernetes-api</span></code>
+when the application environment is set to <code class="docutils literal notranslate"><span class="pre">K8s</span></code> while providing sensible configuration defaults for each.</p>
+<p>This means you can easily bring up a local, single-node, instance of ForestFlow with very little configuration changes, if any.</p>
+</li>
+<li><p class="first">Clustering Split-Brain Resolver</p>
+<p>For distributed systems, network partitions are a way of life and must be handled appropriately. Lightbend
+<a class="reference external" href="https://doc.akka.io/docs/akka-enhancements/current/split-brain-resolver.html#the-problem">describe this problem eloquently</a>.</p>
+<p>Lightbend also provides a commercial implementations for a Split-Brain resolver however in an effort to keep this as open as possible,
+ForestFlow uses an Open Source Split-Brain Resolver called <a class="reference external" href="https://github.com/arnohaase/simple-akka-downing">simple-akka-downing</a></p>
+<p>We again provide sensible defaults in the <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section of the application.conf file but feel free to customize based on your
+needs. Some examples for customization could be changing the strategy to “static-quorum” or “keep-majority”. See
+<a class="reference external" href="https://github.com/arnohaase/simple-akka-downing">simple-akka-downing</a> for more details on customizing this and
+Lightbend’s <a class="reference external" href="https://doc.akka.io/docs/akka-enhancements/current/split-brain-resolver.html#akka-split-brain-resolver">Split Brain Resolver</a> documentation.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="creating-an-oci-compliant-image">
+<h2>Creating an OCI-compliant Image<a class="headerlink" href="#creating-an-oci-compliant-image" title="Permalink to this headline">¶</a></h2>
+<p>You can build and run ForestFlow in a container (docker, podman) and we provide scripts to help with this process.
+See <a class="reference external" href="#image-build-requirement">Image Build Requirements</a> for details on requirements for building a ForestFlow image.
+We may supply a standard image in a container registry like docker.io at some point in the future.</p>
+<p>ForestFlow comes bundled with a <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh">Buildah</a> script that assumes a successful build is available in
+the target directory of the serving module. Using either the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-local.sh">build-local.sh</a> or
+<a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-kubernetes.sh">build-kubernetes.sh</a> scripts will provide just that.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a &quot;local&quot; build</span>
+./../buildah/build-local.sh
+
+<span class="c1"># Compile into an OCI-compliant image using Buildah</span>
+./../buildah/buildah.sh
+
+<span class="c1"># Use podman (or docker) to run ForestFlow in a container locally</span>
+<span class="nv">podman_container</span><span class="o">=</span><span class="k">$(</span>podman run -d <span class="se">\</span>
+-e <span class="s2">&quot;APPLICATION_ENVIRONMENT_CONFIG=local&quot;</span> <span class="se">\</span>
+--net<span class="o">=</span>host <span class="se">\</span>
+--name<span class="o">=</span>ff-serving localhost/com.dreamworks.forestflow-serving:0.2.2<span class="k">)</span>
+
+podman logs -f <span class="si">${</span><span class="nv">podman_container</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh">https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh</a> for another example of using Podman (similar to docker) and
+supplying some overrides for Persistence and Kafka logging.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ForestFlow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building and Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-forestflow">Building ForestFlow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-jar-without-kubernetes-dependencies">Create JAR without Kubernetes dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-jar-with-kubernetes-dependencies">Create a JAR with Kubernetes dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#forestflow-configuration">ForestFlow Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-an-oci-compliant-image">Creating an OCI-compliant Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to ForestFlow</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Quick Start</a></li>
+      <li>Next: <a href="inference.html" title="next chapter">Inference</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, DreamWorks Animation.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/buildconfig.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
