@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -ex
+
+# Set image environment variables
+PATH_HOME="/srv/forestflow-serving"
+PATH_UTILS="${PATH_HOME}/utils"
+PATH_CONFIG="${PATH_HOME}/config"
+
+# Set global variables used by all versions
+FORESTFLOW_HOME=${PATH_HOME}
+FORESTFLOW_BIN=${PATH_HOME}/bin
+FORESTFLOW_DATA="/data"
+
+# Set variables used by all images for this version
+FORESTFLOW_VERSION="0.2.2"
+FORESTFLOW_FILENAME="forestflow-serving-${FORESTFLOW_VERSION}.jar"

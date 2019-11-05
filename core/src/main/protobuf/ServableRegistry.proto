@@ -1,0 +1,175 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "Contract.proto";
+import "FQRV.proto";
+import "ServeRequestShim.proto";
+import "ServableSettings.proto";
+import "InferenceRequest.proto";
+import "Tensor.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain.ServableRegistry"
+  flat_package: true
+  single_file: true
+  import: "com.dreamworks.forestflow.scalapb.CustomTypeMappers.ActorTypeMappers._"
+  import: "com.dreamworks.forestflow.serving.interfaces.Protocol._"
+  import: "akka.dispatch.ControlMessage"
+};
+
+
+
+/* Commands */
+
+message HighPriorityScoreRequest {
+    option (scalapb.message).extends = "BasicScore";
+    option (scalapb.message).extends = "ControlMessage";
+
+    required FQRV fqrv = 1;
+    required InferenceRequest inferenceRequest = 2;
+}
+
+// GraphPipe
+message HighPriorityScoreRequestGP {
+    option (scalapb.message).extends = "GraphPipeScore";
+    option (scalapb.message).extends = "ControlMessage";
+
+    required FQRV fqrv = 1;
+    required bytes reqBytes = 2;
+}
+
+message LowPriorityScoreRequest {
+    option (scalapb.message).extends = "BasicScore";
+
+    required FQRV fqrv = 1;
+    required InferenceRequest inferenceRequest = 2;
+}
+
+// GraphPipe
+message LowPriorityScoreRequestGP {
+    option (scalapb.message).extends = "GraphPipeScore";
+
+    required FQRV fqrv = 1;
+    required bytes reqBytes = 2;
+}
+
+/* Commands */
+message Registry_GetServableMetaData{
+    option (scalapb.message).extends = "RegistryCommand";
+
+    required FQRV fqrv = 1;
+}
+
+message Registry_GetServableMetaDataGP{
+    option (scalapb.message).extends = "RegistryCommand";
+
+    required FQRV fqrv = 1;
+}
+
+
+message Registry_CreateServable {
+    option (scalapb.message).extends = "RegistryCommandWithServeRequest";
+    option (scalapb.message).extends = "HasSideEffects";
+
+    required ServeRequestShim serveRequest = 1;
+    required int64 deliveryId = 2;
+    required string requester = 3 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_UpdateServable {
+    option (scalapb.message).extends = "RegistryCommand";
+    option (scalapb.message).extends = "HasSideEffects";
+
+    required FQRV fqrv = 1;
+    required ServableSettings settings = 2;
+    required int64 deliveryId = 3;
+    required string requester = 4 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_DeleteServable {
+    option (scalapb.message).extends = "RegistryCommand";
+    option (scalapb.message).extends = "HasSideEffects";
+
+    required FQRV fqrv = 1;
+    required int64 deliveryId = 2;
+    required string requester = 3 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_ValidCreateServableRequest {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required ServeRequestShim serveRequest = 2;
+    required string requester = 3 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_InvalidCreateServableRequest {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required ServeRequestShim serveRequest = 2;
+    required string requester = 3 [(scalapb.field).type = "akka.actor.ActorRef"];
+    required string errorMessage = 4;
+}
+
+message Registry_ServableAlreadyExists {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required ServableSettings settings = 3;
+    required string requester = 4 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_ValidUpdateReceived {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required string requester = 43 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_UpdateForUnknownServableRequested {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required string requester = 43 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_UpdateWithSameSettingsRequested {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required string requester = 43 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_ValidDeleteReceived {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required string requester = 43 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+
+message Registry_DeleteForUnknownServableRequested {
+    option (scalapb.message).extends = "CommandDeliveryConfirmation";
+
+    required int64 deliveryId = 1;
+    required FQRV fqrv = 2;
+    required string requester = 43 [(scalapb.field).type = "akka.actor.ActorRef"];
+}
+

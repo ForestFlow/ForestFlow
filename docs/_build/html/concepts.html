@@ -1,0 +1,436 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Concepts &#8212; ForestFlow  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Inference" href="inference.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+--><div class="section" id="concepts">
+<h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-forestflow-cluster">
+<h2>A ForestFlow Cluster<a class="headerlink" href="#a-forestflow-cluster" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="servable">
+<h3>Servable<a class="headerlink" href="#servable" title="Permalink to this headline">¶</a></h3>
+<p>The smallest deployable entity in ForestFlow is called a <code class="docutils literal notranslate"><span class="pre">Servable</span></code>. This closely follows nomenclature used in TensorFlow Serving.
+A Servable represents an instance of a model loaded into memory for serving inference requests. Deploying a model means creating a Servable.
+Each Servable is uniquely identified by its Fully Qualified Release Version or <code class="docutils literal notranslate"><span class="pre">FQRV</span></code> for short.</p>
+</div>
+<div class="section" id="fully-qualified-release-version-fqrv">
+<h3>Fully Qualified Release Version (FQRV)<a class="headerlink" href="#fully-qualified-release-version-fqrv" title="Permalink to this headline">¶</a></h3>
+<p>The FQRV is one of the most important concepts within ForestFlow because routing and scoring (inference) is based on the FQRV.</p>
+<p>The <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto">FQRV</a> consists of a <code class="docutils literal notranslate"><span class="pre">contract:</span> <span class="pre">Contract</span></code> and <code class="docutils literal notranslate"><span class="pre">release_version:</span> <span class="pre">String</span></code>.</p>
+<div class="section" id="release-version">
+<h4>Release Version<a class="headerlink" href="#release-version" title="Permalink to this headline">¶</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">release_version</span></code> along with the Contract <strong>MUST</strong> uniquely identify a deployed Servable/Model.
+The release version is used to distinguish between Servables with the same features that serve the same use case.
+The release version has no requirements for format; it’s a simple string however a good candidate might be the date a model was trained and the type of model deployed.
+This is how ForestFlow allows for multiple versions of a model to co-exist and serve the same use case.</p>
+<p>The ability to produce and simultaneously deploy multiple versions of a model for the same use case allows for</p>
+<ul class="simple">
+<li>Canary deployments: Gradual onboarding of new releases</li>
+<li>Shadow mode: Deploying models that only listen to inference requests and log their results without contributing to user responses. i.e., models that shadow production work for test and validation.
+This can be used for example to implement a Blue-Green release process.</li>
+<li>Performance-based routing: Multiple models deployed for the same use case and routing to the model that shows best performance (based on performance metric feedback sent to ForestFlow)</li>
+<li>Trigger-based onboarding: Routing to deployed models only when a certain criteria is established. A good example for this would be to deploy newer/retrained versions of a model in shadow mode only and use an external approval process to Trigger activation like a Jira ticket approval.</li>
+<li>Time-based onboarding: Similar to Canary deployments except the onboarding and percentage of traffic a new release gets is automated and time driven.</li>
+</ul>
+<p>In addition to deployment (Validity and Phase-In policies) a Contract, details below, defines expiration policies for the group of Servables defined within it.</p>
+<p>This approach allows the user to define a myriad of scenarios. A few examples include:</p>
+<ul class="simple">
+<li>Keep Top-K performers: Use a performance-based router and only keep the Top K performing Servables.
+Automatically expire servables that fall out of the range.
+All others still compete for traffic based on a defined performance metric.</li>
+<li>Route to latest deployed Servable and keep previous K Servables around for shadow mode only.
+This allows for quick rollback to Servables still in Shadow mode in case something unexpected happens with the latest deployment.</li>
+</ul>
+</div>
+<div class="section" id="contract">
+<h4>Contract<a class="headerlink" href="#contract" title="Permalink to this headline">¶</a></h4>
+<p>A <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto">Contract</a> is a struct of 3 elements:</p>
+<ul class="simple">
+<li><a name="contract-organization"></a>organization: String. Top-level organization or namespace the servable belongs to. This of this as your team’s name, company, or department name.</li>
+<li><a name="contract-project"></a>project: String. The project under the organization the servable addresses. Think of this as the specific use case this servable addresses.</li>
+<li><a name="contract-contract_number"></a>contract_number: Int32. The contract is meant to be used to group multiple model releases. Inference requests are at the contract level.
+Different model versions can be deployed to a single Contract and compete for traffic in some way. An inference request always addresses a Contract number within an Organization and Project.
+The defined Routing, Validity and Phase-In policies determine which specific Servable ends up processing an inference request.
+This is essentially where all the routing happens between Servable releases. For example, you could have 2 models deployed with</li>
+</ul>
+<p>The relationship between Contract to Servable is 1-to-Many. A Contract can have many Servables.
+The identifier of each Servable within a Contract is the aforementioned <a class="reference external" href="#release-version">release version</a>.
+So there’s a parent-child relationship between Contracts and Servables. The relationship is defined by the values of the FQRV.</p>
+<p>Example of 2 Servables under the same Contract</p>
+<p>FQRV for a Servable named “h2o_regression_<strong>v1</strong>”:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> 
+  <span class="nt">&quot;fqrv&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;contract&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;DreamWorks&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;contract_number&quot;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;release_version&quot;</span><span class="p">:</span> <span class="s2">&quot;h2o_regression_v1&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>FQRV for a Servable named “h2o_regression_<strong>v2</strong>”:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;fqrv&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;contract&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;DreamWorks&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;contract_number&quot;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;release_version&quot;</span><span class="p">:</span> <span class="s2">&quot;h2o_regression_v2&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>These 2 Servables share the same Contract defined by the organization, project and contract_number.</p>
+<p>When we define a router and expiration policy for the Contract. The Contract then uses these settings to understand how it needs to route requests between the deployed Servables
+within it. Similarly the expiration policy on the Contract applies to these 2 servables.</p>
+</div>
+<div class="section" id="fqrv-extraction">
+<h4>FQRV Extraction<a class="headerlink" href="#fqrv-extraction" title="Permalink to this headline">¶</a></h4>
+<p>The FQRV is defined at the time of model deployment.
+ForstFlow has support for automatic FQRV extraction for some protocols when fetching a model.
+Git would be a good example. FQRV extraction is supported if a certain tagging convention is used otherwise an FQRV with the Serve deployment request is required.
+See Servable (Model) Deployment for more details.</p>
+</div>
+</div>
+</div>
+<div class="section" id="servable-model-deployment">
+<h2>Servable (Model) Deployment<a class="headerlink" href="#servable-model-deployment" title="Permalink to this headline">¶</a></h2>
+<p>Deploying a model and creating a Servable in ForestFlow is a simple REST API call with parameters to configure policies for the Contract and Servable.
+If this is a new use case/Contract, the general recommendation is to first define and create the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto">Contract</a> and <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto">Contract Settings</a> for the use case the Servable is meant to be deployed to.</p>
+<div class="section" id="creating-a-contract">
+<h3>Creating a Contract<a class="headerlink" href="#creating-a-contract" title="Permalink to this headline">¶</a></h3>
+<p>Recall that a Contract consists of potentially more than one Servable. The Contract Settings determine how a Contract routes traffic between its underlying Servables in
+addition to when it considers a Servable expired (expiration policy) and removes it.</p>
+<ul class="simple">
+<li>API Endpoint: /<a class="reference external" href="#contract-organization">organization</a>/<a class="reference external" href="#contract-project">project</a>/<a class="reference external" href="#contract-contract_number">contract_number</a></li>
+<li>REST Verb: POST for new Contracts. PUT for updating existing Contracts</li>
+<li>Payload: JSON, as <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto">Contract Settings</a></li>
+</ul>
+<p>The payload is a JSON that represents Contract Settings which defines an expiration policy and router.
+The <code class="docutils literal notranslate"><span class="pre">Expiration</span> <span class="pre">Policy</span></code> governs how and when Servables are marked as expired and removed from ForestFlow and the Contract.
+The <code class="docutils literal notranslate"><span class="pre">Router</span></code> controls how traffic is distributed across different Servables, if any, within a Contract.</p>
+<p>Example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http POST https://forestflow.com/DreamWorks/schedule/1
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;expirationPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;KeepLatest&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;servablesToKeep&quot;</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;router&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;LatestPhaseInPctBasedRouter&quot;</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example we define a new Contract with Organization = DreamWorks, Project = schedule, Contract Number = 1
+This Contract has a Keep Latest expiration policy set to keep the 2 most recently active Servables.
+Anything beyond that is expired and removed. Additionally the Contract sets up the Router such that traffic only goes to
+the most recently active Servable assuming it’s been fully phased-in based on the Servable’s own Phase-In policy.</p>
+<p>The effect of this setup is that once a Servable is fully phased-in and made active (active state is based on the Servable’s Validity Policy)
+it will completely take over the previous Servable’s inference requests however because the expiration policy keeps the last 2 active Servables,
+the previous Servable, prior to the now most recent one, will remain active in Shadow Mode, essentially replicating the work and logging its results but
+not responding directly to user inference requests.</p>
+<p>The following diagram illustrates this scenario with 2 Servables (FOO, and BAR) under the same Contract.</p>
+<img src="./../resources/forestflow_example_contract_settings.png" alt="ForestFlow Contract Settings example"/><p>Currently available <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ExpirationPolicies.proto">Expiration Policy</a> implementations are:</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala">KeepLatest</a></p>
+<p>Keeps a supplied number of valid (active) Servables based on date Servable became active. Keeps most recently active.</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala">KeepTopRanked</a></p>
+<p>Keeps a supplied number of Servables based on a performance metric.</p>
+</li>
+</ul>
+<p>Currently available <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractRouters.proto">Router</a> implementations are:</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/FairPhaseInPctBasedRouter.scala">FairPhaseInPctBasedRouter</a></p>
+<p>Equally distributes traffic between valid (active) Servables based on their Phase In Percent.</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/LatestPhaseInPctBasedRouter.scala">LatestPhaseInPctBasedRouter</a></p>
+<p>Routes 100% of traffic to the latest (last to become valid) servable.
+If latest servable is not at 100% phase in, this acts a lot like a FairPhaseInPctBasedRouter against the latest 2
+servables, i..e, the latest servable and the one prior to that will share traffic based on their respective Phase In %
+until the latest (last to become valid) Phase In % hits 100% which will then trigger the router to send 100% traffic to latest servable.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="creating-a-servable">
+<h3>Creating a Servable<a class="headerlink" href="#creating-a-servable" title="Permalink to this headline">¶</a></h3>
+<p>After <a class="reference external" href="#creating-a-contract">setting up a Contract</a>, deploying a model and creating a Servable is a simple REST call.
+The REST call can either reference where the MLmodel yaml file is if using <a class="reference external" href="https://mlflow.org">MLFlow</a>
+In ForestFlow this is referred to as the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/MLFlowServeRequest.proto">MLFlowServeRequest</a>.</p>
+<p>OR</p>
+<p>Simply provide all necessary information as part of the request itself as defined here.
+In ForestFlow this is referred to as the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/BasicServeRequest.proto">BasicServeRequest</a>. We start off with the BasicServeRequest and then expand on how the MLFlowServeRequest differs.</p>
+<ul>
+<li><p class="first">BasicServeRequest</p>
+<p>Let’s start with an example and then breakdown the various components</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;file:///my-models/DreamWorks/schedule/0&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;flavor&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="nt">&quot;H2OMojo&quot;</span> <span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;mojoPath&quot;</span><span class="p">:</span> <span class="s2">&quot;myRegressionModel_2.0.zip&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;3.22.0.2&quot;</span>
+   <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;fqrv&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;contract&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;dreamworks&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;HTTYD&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;contract_number&quot;</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;release_version&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;servableSettings&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;policySettings&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;validityPolicy&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;ImmediatelyValid&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;phaseInPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ImmediatePhaseIn&quot;</span><span class="p">:</span> <span class="p">{}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;loggingSettings&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;logLevel&quot;</span><span class="p">:</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;keyFeatures&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;someKey&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;anotherKey&quot;</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul>
+<li><p class="first"><a name="serve-request-path"><strong>path</strong></a>: Where is the model artifact stored (excluding the model file name). ForestFlow must be able to access this file path.
+Example:
+Local filesystem: file:///my-models/DreamWorks/schedule/0
+Git: git&#64;github.com:<USER or Org>/<project>.git#v<Numeric Contract Number>.<Release Version></p>
+<p>ForestFlow currently supports the following <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/utils/SourceStorageProtocols.scala">StorageProtocols</a>:</p>
+<ul class="simple">
+<li>local file system</li>
+<li>git (with support for Git LFS)</li>
+</ul>
+<p>ForestFlow is pluggable and there are plans to add support for other protocols
+such as HDFS, S3, HTTP and FTP in the future.</p>
+</li>
+<li><p class="first"><strong>artifact_path</strong> (optional): An optional string that further defines the root of the model artifact itself.</p>
+<p>In the local filesystem example used above for <code class="docutils literal notranslate"><span class="pre">path</span></code>, we could have set the path to “file:///my-models/DreamWorks” and then further
+detailed that the artifact_path is “schedule/0”.</p>
+<p><em>Usage:</em></p>
+<p>For the BASIC REST API, this is more for organizational and future proofing, in addition to closely mimicing the MLModel-based API.
+The real benefit in having an artifact_path is when using the MLModel-based API. You may chose to version control your <code class="docutils literal notranslate"><span class="pre">MLmodel</span></code> yaml files
+in Git but then have your artifacts stored in S3 for example. This allows you to do exactly that. The <a class="reference external" href="#serve-request-path">path</a> defines
+where the MLmodel file can be found and the artifact_path in the MLmodel file then describes the root path and protocol of where the artifacts
+can be found which can be something else entirely.</p>
+</li>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto">fqrv</a></strong>: Required if the path doesn’t support FQRV extraction and the path provided doesn’t follow an extraction pattern.</p>
+<p>Currently Git is the only protocol that supports FQRV extraction.</p>
+<ul>
+<li><p class="first">Git User/Org maps to fqrv.contract.organization</p>
+</li>
+<li><p class="first">Git project maps to fqrv.contract.project</p>
+</li>
+<li><p class="first">Git Tag format <strong>MUST</strong> follow v<Numeric Contract Number>.&lt;Release Version? format. Example Git tag: v0.h2o_regression_v2</p>
+<p>The tag segments map to fqrv.contract.contract_number and fqrv.release_version respectively.</p>
+<p>If the Git path supplied does not match this format then an FQRV JSON is required.</p>
+<p>An FQRV can always be provided even if a path supports FQRV extraction. The explicitly provided FQRV takes precedence.</p>
+</li>
+</ul>
+</li>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Flavors.proto">flavor</a></strong>: The Servable flavor and flavor properties</p>
+<p>ForestFlow currently supports:</p>
+<ul class="simple">
+<li>H2O Flavor: The H2O flavor only works with the mojo export format. The H2O flavor has the following format:</li>
+</ul>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;flavor&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;H2OMojo&quot;</span> <span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;mojoPath&quot;</span><span class="p">:</span> <span class="s2">&quot;mojofilename.zip&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;3.22.0.2&quot;</span>
+     <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>mojoPath: The H2O MOJO file name</p>
+<p>version: The H2O version used to generate the MOJO file. This is intended for future compatibility requirements.</p>
+</li>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ServableSettings.proto">servableSettings</a></strong>: Define a validity and phase in policy.</p>
+<ul>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto">validityPolicy</a></strong>: Tells ForestFlow when to consider this Servable valid (active).
+A Servable is only ever considered for inference requests if it’s deemed “active”.</p>
+<p>Currently Supported <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto">Validity Policies</a>:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala">ImmediatelyValid</a></li>
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala">NeverValid</a></li>
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala">TimeBasedValidity</a></li>
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala">PerformanceBasedValidity</a></li>
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala">MinServedEventsBasedValidity</a></li>
+</ul>
+</li>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto">phaseInPolicy</a></strong>: Tells ForestFlow how to phase-in this Servable, i.e., how to appropriate traffic to this Servable after it becomes valid.</p>
+<p>Currently Supported  <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto">Phase In Policies</a>:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala">ImmediatePhaseIn</a></li>
+<li><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala">LinearTimeBasedPhaseIn</a></li>
+</ul>
+</li>
+<li><p class="first"><strong><a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/LoggingSettings.proto">loggingSettings</a></strong>: Define when and how a Servable “logs” prediction events which are the result of an inference request.</p>
+<p>Logging Settings takes 3 parameters</p>
+<ul class="simple">
+<li>logLevel (defaults to NONE): <code class="docutils literal notranslate"><span class="pre">NONE</span></code>, <code class="docutils literal notranslate"><span class="pre">FULL</span></code>, or <code class="docutils literal notranslate"><span class="pre">SAMPLE</span></code></li>
+<li>keyFeatures <code class="docutils literal notranslate"><span class="pre">array[string]</span></code>: Optional list of strings that tell ForestFlow which config values from an inference request to pull in as the key for the logged prediction record.
+If an inference request provides configs in the config map, the logged Prediction record will attempt to locate the list of keys defined here in the config map and
+uses the matching key values from the config map to formulate a new “Key” for the Prediction record.
+The default <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/event-subscribers/src/main/scala/com/dreamworks/forestflow/event/subscribers/PredictionLogger.scala">Prediction Logger</a> for ForestFlow is Kafka.
+The key extracted here, if any, will be used as the Key in a Kafka <code class="docutils literal notranslate"><span class="pre">ProducerRecord</span></code></li>
+<li>keyFeaturesSeparator (optional, defaults to “.”): The separator to use if multiple keys are provided and their config values are found.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ForestFlow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildconfig.html">Building and Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-forestflow-cluster">A ForestFlow Cluster</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#servable">Servable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fully-qualified-release-version-fqrv">Fully Qualified Release Version (FQRV)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#servable-model-deployment">Servable (Model) Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-contract">Creating a Contract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-servable">Creating a Servable</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to ForestFlow</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="inference.html" title="previous chapter">Inference</a></li>
+      <li>Next: <a href="contributing.html" title="next chapter">Contributing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, DreamWorks Animation.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/concepts.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
