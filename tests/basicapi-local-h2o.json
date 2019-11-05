@@ -1,0 +1,35 @@
+{
+  "path": "file://<local path for repo>/tests",
+  "fqrv" : {
+    "contract" : {
+      "organization": "samples",
+      "project": "energy_output",
+      "contract_number": 0
+    },
+    "release_version": "StackedEnsemble_AllModels_AutoML_20191002_103122"
+  },
+  "flavor": {
+    "H2OMojo" : {
+      "mojoPath": "StackedEnsemble_AllModels_AutoML_20191002_103122.zip",
+      "version": "3.22.0.2"
+    }
+  },
+  "servableSettings": {
+    "policySettings": {
+      "validityPolicy": [
+        {
+          "ImmediatelyValid": {}
+        }
+      ],
+      "phaseInPolicy": {
+        "ImmediatePhaseIn": {}
+      }
+    },
+    "loggingSettings": {
+      "logLevel": "FULL",
+      "keyFeatures": [
+        "reqid"
+      ]
+    }
+  }
+}

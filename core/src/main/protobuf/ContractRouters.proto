@@ -1,0 +1,51 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+
+/**
+  * Validity rules are used to define when a model is deemed in "Ready-to-Serve" state
+  * Note that a model only starts its phase-in strategy after it has been deemed valid.
+  * Validity rules are predominantly used to keep models running in Shadow Mode or to activate once a certain performance
+  * threshold is meet. Models can also be updated from NeverValid to ImmediatelyValid manually.
+  *
+  * We may want to support an API with RBAC (role-based access control) that only allows for models to run in shadow mode
+  * and as a result automatically sets the model's validity rule to NeverValid
+  */
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  import: "com.dreamworks.forestflow.serving.impl.ContractRouters._"
+  import: "com.dreamworks.forestflow.serving.impl.ServableMetricsImpl"
+  import: "com.dreamworks.forestflow.serving.interfaces.RouterType"
+  flat_package: true
+  single_file: true
+};
+
+message RouterTypeShim {
+    oneof sealed_value {
+        FairPhaseInPctBasedRouter FairPhaseInPctBasedRouter = 1;
+        LatestPhaseInPctBasedRouter LatestPhaseInPctBasedRouter = 2;
+    }
+}
+
+message FairPhaseInPctBasedRouter {
+    option (scalapb.message).extends = "RouterType";
+    option (scalapb.message).extends = "FairPhaseInPctBasedRouterImpl";
+}
+
+message LatestPhaseInPctBasedRouter {
+    option (scalapb.message).extends = "RouterType";
+    option (scalapb.message).extends = "LatestPhaseInPctBasedRouterImpl";
+}

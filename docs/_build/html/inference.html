@@ -1,0 +1,201 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Inference &#8212; ForestFlow  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Concepts" href="concepts.html" />
+    <link rel="prev" title="Getting started" href="buildconfig.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+--><div class="section" id="inference">
+<h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
+<p>ForestFlow currently exposes 2 APIs for inference; namely the BASIC REST API and the GraphPipe API. Both APIs support a similar set of features.
+Servable type implementations in ForestFlow (model types), as in H2O or TensorFlow, have the option to support the BASIC REST API, the GraphPipe API or both.
+This is a server implementation detail for each servable and it’s meant to offer flexibility for onboarding servable types quickly that may not adhere to every interface ForestFlow supports.
+This also keeps ForestFlow’s API flexible enough to incrementally adapt more interfaces in the future.</p>
+<div class="section" id="servable-implementation-interface-support-matrix">
+<h2>Servable implementation interface support matrix:<a class="headerlink" href="#servable-implementation-interface-support-matrix" title="Permalink to this headline">¶</a></h2>
+<p>| Servable Type |  BASIC REST API  |  GraphPipe API  |
+|—|—|—|
+| H2O  | YES  | YES  |</p>
+</div>
+<div class="section" id="inference-using-the-basic-rest-api">
+<h2>Inference - Using the BASIC REST API<a class="headerlink" href="#inference-using-the-basic-rest-api" title="Permalink to this headline">¶</a></h2>
+<p>The BASIC REST API relies on ProtoBuf definitions but exposes a JSON interface for ease of use.
+The proto schema is defined in <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto">InferenceRequest.proto</a></p>
+<p>A BASIC REST API Inference Request takes:</p>
+<ul class="simple">
+<li>A Tensor Schema which maps Tensors and their types to a list of field names</li>
+<li>An Array of <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Tensor.proto">Datums</a> which in turn is an Array of Tensors</li>
+<li>The Tensors themselves carrying features. A Tensor per data type.</li>
+<li>A map&lt;string, string&gt; of configs. Configs can be used to supply data used when logging model predictions or to supply additional configuration parameters to Servables for inference requests.
+The keys in the config map are matched on with logging settings keys for logging predictions.</li>
+</ul>
+<p>Each element in the Datum array represents an inference request record with a full feature set for an inference request.
+A Datum with multiple array elements represents a batch prediction for multiple records. Every Datum record represents an inference request.
+This is how the BASIC API allows for batch inference requests for optimized client-server round-trip performance.</p>
+<p>Note that routing to different models is done at the entire batch level. So the entire array of Datums is sent to a single model for inference.
+This is a  tradeoff the user has to make when between # of inference requests in a single batch vs routing requirements.
+For example if you had 3 models competing for inference requests, all the records in a single inference request (i.e., all the elements in the Datum array) will route to a single model.
+Subsequent inference requests, and their associated Datum record(s) will route to a model based on the routing criteria and phase-in percentages.
+This isn’t something to ponder too much about. Simply be aware of it in case your use case requires different behavior.</p>
+<p>Here’s a contrived inference request example on a gaming dataset</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span> <span class="nt">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Float64&quot;</span><span class="p">,</span>  <span class="nt">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="s2">&quot;attack&quot;</span><span class="p">,</span> <span class="s2">&quot;defence&quot;</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;datum&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;tensors&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="nt">&quot;String&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;human1&quot;</span><span class="p">,</span> <span class="s2">&quot;human&quot;</span><span class="p">]</span>  <span class="p">}</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nt">&quot;Float64&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">67.37</span><span class="p">,</span> <span class="mf">25.2</span><span class="p">,</span> <span class="mf">80.6</span><span class="p">]</span>  <span class="p">}</span> <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;tensors&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="nt">&quot;String&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mon16&quot;</span><span class="p">,</span> <span class="s2">&quot;monster&quot;</span><span class="p">]</span>  <span class="p">}</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nt">&quot;Float64&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">76.5</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mf">33.9</span><span class="p">]</span>  <span class="p">}</span> <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;configs&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;gameid&quot;</span><span class="p">:</span>  <span class="s2">&quot;some-uuid&quot;</span><span class="p">,</span> <span class="nt">&quot;playerid&quot;</span><span class="p">:</span>  <span class="s2">&quot;player-uuid&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice how this example defines a schema of 2 tensors because the features the inference request for the model where this is used has both String and Float64 features.
+The schema further identifies the positional field names for each supplied feature column. For example in the first datum, human1 represents the <code class="docutils literal notranslate"><span class="pre">name</span></code> field. Similarly 80.6 represents the value for the <code class="docutils literal notranslate"><span class="pre">defence</span></code> field.
+Also notice that this is a batch inference request since there are 2 datums provided, each with its full list of features matching the schema provided.
+There’s no fundamental difference in structure with a a single inference request vs a batch request. A single inference request is just a batch request with 1 datum record.</p>
+<p>######Performance considerations for batch size
+While larger inference batches are generally a good thing, if applicable, depending on how ForstFlow is configured and deployed,
+the number of batch records in each request may introduce some undesirable performance or latency implications.
+For example, in shadow mode, where a model is simply shadowing the execution of inference requests and logging results, these models will pickup shadow requests when there are no pending
+high priority user-facing inference requests in their queue. However if the model is then busy with a very large batch shadow mode inference request and it is then required to serve a high priority user-facing
+inference request, it does not stop processing the in-hand shadow request. i.e., it doesn’t preempt its work. The high-priority inference request waits until the next available slot is available.
+This can be avoided by balancing the size of batches in addition to deployment considerations. Planned versions of ForestFlow will add more flexibility here and bring in the concept of model replicas that can balance and distribute work.</p>
+</div>
+<div class="section" id="inference-using-the-graphpipe-api">
+<h2>Inference - Using the GraphPipe API<a class="headerlink" href="#inference-using-the-graphpipe-api" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ForestFlow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildconfig.html">Building and Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#servable-implementation-interface-support-matrix">Servable implementation interface support matrix:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference-using-the-basic-rest-api">Inference - Using the BASIC REST API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference-using-the-graphpipe-api">Inference - Using the GraphPipe API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to ForestFlow</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="buildconfig.html" title="previous chapter">Getting started</a></li>
+      <li>Next: <a href="concepts.html" title="next chapter">Concepts</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, DreamWorks Animation.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/inference.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

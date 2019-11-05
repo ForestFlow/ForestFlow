@@ -1,0 +1,180 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "Contract.proto";
+import "ServeRequestShim.proto";
+import "PolicySettings.proto";
+import "LoggingSettings.proto";
+import "ContractSettings.proto";
+import "FQRV.proto";
+import "ServableSettings.proto";
+import "InferenceRequest.proto";
+import "Tensor.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain.ServableProxy"
+  flat_package: true
+  single_file: true
+  import: "com.dreamworks.forestflow.serving.interfaces.Protocol._"
+  import: "akka.dispatch.ControlMessage"
+};
+
+message EvalActiveServables {
+    /**
+      * If set, the only contract that will be evaluated is the contract provided.
+      * When a servable is created or updated, we only evaluate for that specific contract. This is an optimization
+      */
+    optional Contract contract = 1;
+
+    /**
+      * If set, will force a router re-create (instead of merge with servable settings)
+      * for all contracts or selected contract if contract option above is supplied.
+      * This is set when contract settings are updated.
+      */
+    required bool contractSettingsUpdated = 2 [default = false];
+}
+
+/* Commands */
+
+message CreateServable {
+    option (scalapb.message).extends = "ProxyCommandWithServeRequest";
+    option (scalapb.message).extends = "HasSideEffects";
+    required ServeRequestShim serveRequest = 1;
+}
+
+message UpdateServable {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    option (scalapb.message).extends = "HasSideEffects";
+    required FQRV fqrv = 1;
+    optional PolicySettings policySettings = 2;
+    optional LoggingSettings loggingSettings = 3;
+}
+
+message GetContractSettings {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+message UpdateContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    option (scalapb.message).extends = "HasSideEffects";
+    required Contract contract = 1;
+    required ContractSettings contractSettings = 2;
+}
+message CreateContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    option (scalapb.message).extends = "HasSideEffects";
+    required Contract contract = 1;
+    required ContractSettings contractSettings = 2;
+}
+
+message DeleteServable {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    option (scalapb.message).extends = "HasSideEffects";
+    required FQRV fqrv = 1;
+}
+message GetServableSettings {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    required FQRV fqrv = 1;
+}
+
+message GetServableSettingsByContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+message GetServableMetrics {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    required FQRV fqrv = 1;
+}
+
+message GetServableMetricsByContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+message ScoreByContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+    required InferenceRequest inferenceRequest = 2;
+}
+
+// GraphPipe
+message ScoreByContractGP {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+    required bytes reqBytes = 2;
+}
+
+/**
+  * ServableProxy uses "inverse-priority-mailbox" configuration which in-turn uses an
+  * UnboundedInverseControlAwareDequeBasedMailbox. Anything that extends from ControlMessage
+  * as does this LowPriorityShadeRequest will get de-prioritized over any other request.
+  * This doesn't mean we can block on low priority requests however because that would still block the processing
+  * of high-priority requests that have queued up since. This simply means processing lower priority requests gets
+  * delayed until there are no normal requests (high priority ones) to process at that moment.
+  */
+message ShadeRequest {
+    option (scalapb.message).extends = "LowPriorityShadeRequest";
+
+    optional FQRV excludeFQRV = 1;
+    required InferenceRequest inferenceRequest = 2;
+    required string id = 3;
+}
+
+// GraphPipe
+message ShadeRequestGP {
+    option (scalapb.message).extends = "LowPriorityShadeRequest";
+
+    optional FQRV excludeFQRV = 1;
+    required bytes reqBytes = 2;
+    required string id = 3;
+}
+
+message GetServableMetaData {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    required FQRV fqrv = 1;
+}
+
+// GraphPipe
+message GetServableMetaDataGP {
+    option (scalapb.message).extends = "ProxyCommandWithFQRV";
+    required FQRV fqrv = 1;
+}
+
+message GetServableMetaDataByContract {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+// GraphPipe
+message GetServableMetaDataByContractGP {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+message GetServableReleases {
+    option (scalapb.message).extends = "ProxyCommandWithContract";
+    required Contract contract = 1;
+}
+
+message ContractsRemoved {
+    repeated Contract contracts = 1 [(scalapb.field).collection_type="collection.immutable.List"];
+}
+
+message ContractsAdded {
+    repeated Contract contracts = 1 [(scalapb.field).collection_type="collection.immutable.List"];
+}
+
