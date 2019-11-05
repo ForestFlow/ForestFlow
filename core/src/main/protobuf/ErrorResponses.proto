@@ -1,0 +1,93 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "FQRV.proto";
+import "Contract.proto";
+import "ServableSettings.proto";
+import "ServeRequestShim.proto";
+
+//import "google/protobuf/wrappers.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  flat_package: true
+  single_file: true
+  import: "com.dreamworks.forestflow.serving.interfaces.HasHTTPStatusCode"
+};
+
+
+message ErrorResponse {
+    oneof sealed_value {
+        UnknownServableError UnknownServableError = 1;
+        UnknownServable UnknownServable = 2;
+        ServableAlreadyExistsError ServableAlreadyExistsError = 3;
+        CreateServableRequestInvalidError CreateServableRequestInvalidError = 4;
+        NoActiveServablesForContract NoActiveServablesForContract = 5;
+        UnknownContract UnknownContract = 6;
+        ContractValidationError ContractValidationError = 7;
+    }
+}
+
+
+/* Error Handling */
+message UnknownServableError {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required FQRV fqrv = 1;
+    optional string errorMessage = 2;
+    optional int32 StatusCode = 3 [default = 500];
+}
+
+message UnknownServable {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required FQRV fqrv = 1;
+    optional int32 StatusCode = 2 [default = 404];
+}
+message ProtocolNotSupported {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required FQRV fqrv = 1;
+    required string errorMessage = 2;
+    optional int32 StatusCode = 3 [default = 422];
+}
+message ServableAlreadyExistsError {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required FQRV fqrv = 1;
+    required ServableSettings servableSettings = 2;
+    optional int32 StatusCode = 3 [default = 409];
+}
+message CreateServableRequestInvalidError {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required ServeRequestShim serveRequest = 1;
+    required string errorMessage = 2;
+    optional int32 StatusCode = 3 [default = 422];
+}
+
+message NoActiveServablesForContract {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required Contract contract = 1;
+    optional int32 StatusCode = 2 [default = 422];
+}
+
+message UnknownContract {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required Contract contract = 1;
+    optional int32 StatusCode = 2 [default = 404];
+}
+
+message ContractValidationError {
+    option (scalapb.message).extends = "HasHTTPStatusCode";
+    required Contract contract = 1;
+    required string msg = 2;
+    optional int32 StatusCode = 3 [default = 422];
+}
