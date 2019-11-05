@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--suppress MavenModelInspection -->
+    <parent>
+        <artifactId>forestflow</artifactId>
+        <groupId>com.dreamworks.forestflow</groupId>
+        <!--suppress MavenPropertyInParent -->
+        <version>${forestflow-latest.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>forestflow-cluster</artifactId>
+
+    <properties>
+        <commons-io.version>2.6</commons-io.version>
+        <akka-persistence-jdbc.version>3.5.0</akka-persistence-jdbc.version>
+        <postgresql-driver.version>42.2.5</postgresql-driver.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dreamworks.forestflow</groupId>
+            <artifactId>forestflow-core</artifactId>
+            <version>${forestflow-latest.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <!--INFO: Requires schema https://github.com/dnvriend/akka-persistence-jdbc/blob/master/src/test/resources/schema/postgres/postgres-schema.sql-->
+            <groupId>com.github.dnvriend</groupId>
+            <artifactId>akka-persistence-jdbc_${scala.compat.version}</artifactId>
+            <version>${akka-persistence-jdbc.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.typesafe</groupId>
+                    <artifactId>config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-management_${scala.compat.version}</artifactId>
+                    <groupId>com.lightbend.akka.management</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-http-spray-json_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-http_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-actor_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-persistence_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-protobuf_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-stream_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql-driver.version}</version>
+        </dependency>
+
+     </dependencies>
+
+
+</project>

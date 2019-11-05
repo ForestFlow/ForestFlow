@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2019 DreamWorks Animation L.L.C.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--suppress MavenModelInspection -->
+    <parent>
+        <artifactId>forestflow</artifactId>
+        <groupId>com.dreamworks.forestflow</groupId>
+        <!--suppress MavenPropertyInParent -->
+        <version>${forestflow-latest.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>forestflow-serving-rest</artifactId>
+
+    <properties>
+        <akka-http-scalapb.version>0.2.1</akka-http-scalapb.version>
+        <heikoseeberger-akka-http-json.version>1.22.0</heikoseeberger-akka-http-json.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dreamworks.forestflow</groupId>
+            <artifactId>forestflow-cluster</artifactId>
+            <version>${forestflow-latest.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>config</artifactId>
+                    <groupId>com.typesafe</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_${scala.compat.version}</artifactId>
+            <version>${akka-http.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.davit</groupId>
+            <artifactId>akka-http-scalapb_${scala.compat.version}</artifactId>
+            <version>${akka-http-scalapb.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.thesamet.scalapb</groupId>
+                    <artifactId>scalapb-runtime_${scala.compat.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-http_${scala.compat.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-http-core_${scala.compat.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-http-spray-json_${scala.compat.version}</artifactId>
+                </exclusion>
+
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven-scala-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <args>
+                                <arg>-dependencyfile</arg>
+                                <arg>${project.build.directory}/.scala_dependencies</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <args>
+                        <arg>-target:jvm-1.8</arg>
+                    </args>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

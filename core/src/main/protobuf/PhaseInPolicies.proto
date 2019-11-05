@@ -1,0 +1,59 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+
+/**
+  * Phase in only takes effect after a model has been marked as Valid by the model's List of `ValidityRule`s
+  *
+  */
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  import: "com.dreamworks.forestflow.serving.impl.PhaseInPolicies._"
+  import: "com.dreamworks.forestflow.serving.impl.ServableMetricsImpl"
+  flat_package: true
+  single_file: true
+//  preamble: "sealed trait BaseMessage"
+  preamble: [
+    "sealed trait PhaseInPolicy {",
+    "    this: com.dreamworks.forestflow.domain.PhaseInPolicyShim =>",
+    "    /**",
+    "      *",
+    "      * @return 0 - 100 defining the percentage of events to send to this model",
+    "      */",
+    "    def getPhaseInPercent(servableMetrics: ServableMetricsImpl): Int",
+    "}"
+  ]
+};
+
+message PhaseInPolicyShim {
+    oneof sealed_value {
+        ImmediatePhaseIn ImmediatePhaseIn = 1;
+        LinearTimeBasedPhaseIn LinearTimeBasedPhaseIn = 2;
+    }
+}
+
+message LinearTimeBasedPhaseIn {
+    option (scalapb.message).extends = "PhaseInPolicy";
+    option (scalapb.message).extends = "LinearTimeBasedPhaseInImpl";
+
+    required int32 phase_in_over_secs = 1;
+}
+
+
+message ImmediatePhaseIn {
+    option (scalapb.message).extends = "PhaseInPolicy";
+    option (scalapb.message).extends = "ImmediatePhaseInImpl";
+}

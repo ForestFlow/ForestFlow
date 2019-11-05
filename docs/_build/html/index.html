@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ForestFlow &#8212; ForestFlow  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="forestflow">
+<h1>ForestFlow<a class="headerlink" href="#forestflow" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="./index.rst"><img alt="ForestFlow" src="_images/forestflow_logo_text.png" /></a>
+<p>ForestFlow is a scalable policy-based cloud-native machine learning model server. ForestFlow strives to strike a
+balance between the flexibility it offers data scientists and the adoption of standards while reducing
+friction between Data Science, Engineering and Operations teams.</p>
+<p>ForestFlow is policy-based because we believe automation for Machine Learning/Deep Learning operations is critical to
+scaling human resources. ForestFlow lends itself well to workflows based on automatic retraining, version control,
+A/B testing, Canary Model deployments, Shadow testing, automatic time or performance-based model deprecation and
+time or performance-based model routing in real-time.</p>
+<p>Our aim with ForestFlow is to provide data scientists a simple means to deploy models to a production system with
+minimal friction accelerating the development to production value proposition.</p>
+<p>To achieve these goals, ForestFlow looks to address the proliferation of model serving formats and standards for
+inference API specifications by adopting, what we believe, are currently, or are becoming widely adopted open source
+frameworks, formats, and API specifications. We do this in a pluggable format such that we can continue to evolve
+ForestFlow as the industry and space matures and we see a need for additional support.</p>
+<p>ForestFlow is developed and maintained by <a class="reference external" href="http://www.dreamworksanimation.com">DreamWorks Animation</a></p>
+<div class="section" id="development-repository">
+<h2>Development Repository<a class="headerlink" href="#development-repository" title="Permalink to this headline">¶</a></h2>
+<p>This GitHub repository hosts the trunk of the ForestFlow development. This implies that it is the newest public
+version with the latest features and bug fixes. However, it also means that it has not undergone a lot of testing and
+is generally less stable than the <a class="reference external" href="https://github.com/dreamworksanimation/ForestFlow/releases">production releases</a>.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>ForestFlow is released under the <a class="reference external" href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a> license, which is a free, open-source, and detailed software license
+developed and maintained by the Apache Software Foundation.</p>
+</div>
+</div>
+<div class="section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<p>User Documentation</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#why-forestflow">Why ForestFlow?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#model-deployment">Model Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#inference">Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#currently-supported-model-formats">Currently Supported model formats</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildconfig.html">Building and Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="buildconfig.html#building-forestflow">Building ForestFlow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buildconfig.html#create-jar-without-kubernetes-dependencies">Create JAR without Kubernetes dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildconfig.html#create-a-jar-with-kubernetes-dependencies">Create a JAR with Kubernetes dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="buildconfig.html#forestflow-configuration">ForestFlow Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildconfig.html#creating-an-oci-compliant-image">Creating an OCI-compliant Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inference.html#servable-implementation-interface-support-matrix">Servable implementation interface support matrix:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference.html#inference-using-the-basic-rest-api">Inference - Using the BASIC REST API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference.html#inference-using-the-graphpipe-api">Inference - Using the GraphPipe API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#a-forestflow-cluster">A ForestFlow Cluster</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#servable">Servable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#fully-qualified-release-version-fqrv">Fully Qualified Release Version (FQRV)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#servable-model-deployment">Servable (Model) Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#creating-a-contract">Creating a Contract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#creating-a-servable">Creating a Servable</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to ForestFlow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#style-guide">Style Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-requests">Pull Requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#git-workflow">Git Workflow</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">ForestFlow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildconfig.html">Building and Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to ForestFlow</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="overview.html" title="next chapter">Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, DreamWorks Animation.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

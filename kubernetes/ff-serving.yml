@@ -1,0 +1,118 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: ff-serving
+  name: ff-serving
+  namespace: forestflow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ff-serving
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ff-serving
+        actorSystemName: ff-serving
+    spec:
+      containers:
+        - name: ff-serving
+          image: [FILL ME - Your ForestFlow build image]
+          imagePullPolicy: Always
+          #health
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: management
+          ports:
+            # akka remoting
+            - name: remoting
+              containerPort: 2552
+              protocol: TCP
+            # akka-management bootstrap
+            # must match up with contact-point-discovery.port-name for bootstrap
+            - name: management
+              containerPort: 8558
+              protocol: TCP
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+          #namespace
+          env:
+            - name: APPLICATION_ENVIRONMENT_CONFIG
+              value: "K8s"
+            - name: AKKA_MANAGEMENT_HOSTNAME_CONFIG
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KAFKA_BOOTSTRAP_SERVERS_CONFIG
+              value: [FILL ME]
+            - name: KAFKA_PREDICTION_LOGGER_BASIC_TOPIC_CONFIG
+              value: [FILL ME]
+            - name: KAFKA_PREDICTION_LOGGER_GRAPHPIPE_TOPIC_CONFIG
+              value: [FILL ME]
+            - name: AKKA_PERSISTENCE_JOURNAL_PLUGIN
+              value: "jdbc-journal"
+            - name: AKKA_PERSISTENCE_SNAPSHOT_STORE_PLUGIN
+              value: "jdbc-snapshot-store"
+            - name: POSTGRES_HOST_CONFIG
+              value: [FILL ME]
+            - name: POSTGRES_USER_CONFIG
+              value: [FILL ME]
+            - name: POSTGRES_PASSWORD_CONFIG
+              value: [FILL ME]
+            - name: POSTGRES_DATABASE_CONFIG
+              value: [FILL ME]
+
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-reader
+  namespace: forestflow
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: forestflow
+subjects:
+  # Create the default user for the forestflow namespace
+  - kind: User
+    name: system:serviceaccount:forestflow:default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ff-serving
+spec:
+  selector:
+    app: ff-serving
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8090
+  - name: management
+    protocol: TCP
+    port: 8080
+    targetPort: 8558

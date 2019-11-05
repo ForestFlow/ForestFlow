@@ -1,0 +1,54 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "FQRV.proto";
+import "Tensor.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  import: "com.dreamworks.forestflow.serving.interfaces.ServableMetaData"
+  flat_package: true
+  single_file: true
+};
+
+
+message ServableMetaDataShim {
+    oneof sealed_value {
+        BasicMetaData BasicMetaData = 1;
+    }
+}
+
+message BasicMetaData {
+    option (scalapb.message).extends = "ServableMetaData";
+
+    required FQRV fqrv = 1;
+    optional string name = 2;
+    optional string server = 3;
+    optional string description = 4;
+
+    repeated BasicIOMetadata inputs = 5 [
+                                  (scalapb.field).collection_type="collection.immutable.List"
+                                  ];
+    repeated BasicIOMetadata outputs = 6 [
+                                   (scalapb.field).collection_type="collection.immutable.List"
+                                   ];
+}
+
+message BasicIOMetadata {
+    required string name = 1;
+    optional string description = 2;
+    repeated int64 shape = 3 [(scalapb.field).collection_type="collection.immutable.List"];
+    required TensorType type = 4;
+}

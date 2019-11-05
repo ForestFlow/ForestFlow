@@ -1,0 +1,115 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "Contract.proto";
+import "ContractSettings.proto";
+import "FQRV.proto";
+import "ServableSettings.proto";
+import "ServeRequestShim.proto";
+import "ServableMetrics.proto";
+import "LoggingSettings.proto";
+import "Prediction.proto";
+import "InferenceRequest.proto";
+
+//import "google/protobuf/wrappers.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  flat_package: true
+  single_file: true
+  import: "com.dreamworks.forestflow.serving.interfaces.Protocol.Event"
+};
+
+message ContractSettingsCreated {
+    option (scalapb.message).extends = "Event";
+
+    required Contract contract = 1;
+    required ContractSettings contractSettings = 2;
+}
+
+message ContractSettingsUpdated {
+    option (scalapb.message).extends = "Event";
+
+    required Contract contract = 1;
+    required ContractSettings contractSettings = 2;
+}
+
+message ServableSettingsUpdated {
+    option (scalapb.message).extends = "Event";
+
+    required FQRV fqrv = 1;
+    required ServableSettings servableSettings = 2;
+
+}
+
+message ServableMetricsUpdated {
+    option (scalapb.message).extends = "Event";
+
+    required ServableMetrics servableMetrics = 1;
+}
+
+message ServeRequestValidated {
+    option (scalapb.message).extends = "Event";
+
+    required ServeRequestShim serveRequest = 1;
+}
+
+message ServablesDeleted {
+    option (scalapb.message).extends = "Event";
+
+    repeated FQRV fqrv = 1 [
+                           (scalapb.field).collection_type="collection.immutable.List"
+                           ];
+}
+
+
+/*message PredictionEvent {
+    option (scalapb.message).extends = "Event";
+
+    required Prediction prediction = 1;
+    required bool servedRequest = 2;
+    map<string, string> datum = 3;
+    required LoggingSettings loggingSettings = 4;
+}*/
+
+message PredictionEvent {
+    option (scalapb.message).extends = "Event";
+
+    required Prediction prediction = 1;
+    required bool servedRequest = 2;
+    required InferenceRequest inferenceRequest = 3;
+    required LoggingSettings loggingSettings = 4;
+}
+
+message PredictionEventGP {
+    option (scalapb.message).extends = "Event";
+
+    required PredictionGP prediction = 1;
+    required bool servedRequest = 2;
+    required bytes inferBytes = 3;
+    required LoggingSettings loggingSettings = 4;
+}
+
+message CreateServableRequested {
+    option (scalapb.message).extends = "Event";
+
+    required ServeRequestShim serveRequest = 1;
+}
+
+message ServableDeleted {
+    option (scalapb.message).extends = "Event";
+
+    required FQRV fqrv = 1;
+}

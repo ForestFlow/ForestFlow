@@ -1,0 +1,368 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+{
+  "definitions": {
+    "InferenceRequest": {
+      "title": "InferenceRequest",
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "array",
+          "items": {
+            "title": "TensorSchema",
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "TensorType",
+                "type": "string",
+                "enum": [
+                  "Float16",
+                  "Float32",
+                  "Float64",
+                  "Int8",
+                  "Int16",
+                  "Int32",
+                  "Int64",
+                  "String",
+                  "Bool",
+                  "Bytes"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "type"
+            ]
+          }
+        },
+        "datum": {
+          "type": "array",
+          "items": {
+            "title": "Datum",
+            "type": "object",
+            "properties": {
+              "tensors": {
+                "type": "array",
+                "items": {
+                  "title": "Tensor",
+                  "type": "object",
+                  "properties": {
+                    "String": {
+                      "title": "StringData",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Int8": {
+                      "title": "Int8Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": -128,
+                            "maximum": 127
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Int16": {
+                      "title": "Int16Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": -32768,
+                            "maximum": 32767
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Int32": {
+                      "title": "Int32Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": -2147483648,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Int64": {
+                      "title": "Int64Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Float16": {
+                      "title": "Float16Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Float32": {
+                      "title": "Float32Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Float64": {
+                      "title": "Float64Data",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Bool": {
+                      "title": "BoolData",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "boolean"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    },
+                    "Byte": {
+                      "title": "ByteData",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "tensorType": {
+                          "title": "TensorType",
+                          "type": "string",
+                          "enum": [
+                            "Float16",
+                            "Float32",
+                            "Float64",
+                            "Int8",
+                            "Int16",
+                            "Int32",
+                            "Int64",
+                            "String",
+                            "Bool",
+                            "Bytes"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "configs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

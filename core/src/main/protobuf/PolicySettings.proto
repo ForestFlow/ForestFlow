@@ -1,0 +1,45 @@
+/**
+ * Copyright 2019 DreamWorks Animation L.L.C.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+import "scalapb/scalapb.proto";
+import "PhaseInPolicies.proto";
+import "ValidityRules.proto";
+
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  flat_package: true
+  single_file: true
+};
+
+
+
+message PolicySettings {
+//    repeated google.protobuf.Any phaseInPolicy = 1 [
+//        (scalapb.field).collection_type="collection.immutable.List",
+//        (scalapb.field).type = "PhaseInPolicy"];
+
+    /**
+      * Defines when this serve request can be considered a valid servable
+      * that then subsequently gets phased in based on the namespace's phase-in policy
+      */
+    repeated ValidityRuleShim validityPolicy = 1 [
+                                                 (scalapb.field).collection_type="collection.immutable.List"
+                                                 ];
+
+    /**
+      * Defines how a model is phased-in after being deemed "valid" by the validation rules set by the `validityPolicy`
+      */
+    required PhaseInPolicyShim phaseInPolicy = 2;
+
+}
