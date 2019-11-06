@@ -78,3 +78,10 @@ fabric.properties
 
 # ForestFlow specific
 ff-temp/
+
+# Sphinx documentation
+docs/_build/
+docs/api/
+docs/Makefile
+docs/make.bat
+
