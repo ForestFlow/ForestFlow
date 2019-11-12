@@ -157,27 +157,26 @@ class ServableRoutes(servableProxyActor: ActorRef)(implicit system: ActorSystem,
               entity(as[BasicServeRequest]) { completeServeRequest },
               entity(as[MLFlowServeRequest]) { completeServeRequest },
             )
-          }
-        )
-
-      },
-      pathPrefix(Segment / Segment / IntNumber).as(Contract.apply) { contract =>
-        concat(
-          path(Segment) { releaseVersion =>
-            val fqrv = FQRV(contract, releaseVersion)
-            post {
-              concat(
-                entity(as[BasicServeRequest]) { sr => completeServeRequest(sr.withFqrv(fqrv)) },
-                entity(as[MLFlowServeRequest]) { sr => completeServeRequest(sr.withFqrv(fqrv)) },
-              )
-            }
           },
-          post {
-            entity(as[ContractSettings]) { contractSettings: ContractSettings =>
-              completeProtoRequest(servableProxyActor ? CreateContract(contract, contractSettings))
+          pathPrefix(Segment / Segment / IntNumber).as(Contract.apply) { contract =>
+            path(Segment) { releaseVersion =>
+              val fqrv = FQRV(contract, releaseVersion)
+              post {
+                concat(
+                  entity(as[BasicServeRequest]) { sr => completeServeRequest(sr.withFqrv(fqrv)) },
+                  entity(as[MLFlowServeRequest]) { sr => completeServeRequest(sr.withFqrv(fqrv)) },
+                )
+              }
             }
           }
         )
+      },
+      path("contract" / Segment / Segment / IntNumber).as(Contract.apply) { contract =>
+        post {
+          entity(as[ContractSettings]) { contractSettings: ContractSettings =>
+            completeProtoRequest(servableProxyActor ? CreateContract(contract, contractSettings))
+          }
+        }
       },
       pathPrefix("contracts") {
         concat(
