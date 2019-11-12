@@ -109,7 +109,7 @@ If this is a new use case/Contract, the general recommendation is to first defin
 Recall that a Contract consists of potentially more than one Servable. The Contract Settings determine how a Contract routes traffic between its underlying Servables in 
 addition to when it considers a Servable expired (expiration policy) and removes it.
 
- - API Endpoint: /[organization](#contract-organization)/[project](#contract-project)/[contract_number](#contract-contract_number)
+ - API Endpoint: contract/[organization](#contract-organization)/[project](#contract-project)/[contract_number](#contract-contract_number)
  - REST Verb: POST for new Contracts. PUT for updating existing Contracts
  - Payload: JSON, as [Contract Settings](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto)
 
@@ -120,7 +120,7 @@ The `Router` controls how traffic is distributed across different Servables, if 
 Example:
 
 ```bash
-http POST https://forestflow.com/DreamWorks/schedule/1
+http POST https://forestflow.com/contract/DreamWorks/schedule/1
 ```
 ```json
 {
