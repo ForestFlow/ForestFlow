@@ -29,9 +29,9 @@ We appreciate and consistently, make use of and, contribute open source projects
 Check out ForestFlow on Github for a getting started guide and more information. 
 
 ## Model Deployment
-For model deployment, ForestFlow supports models described via [MLFLow Model](https://mlflow.org/docs/latest/models.html) format which allows for different flavors i..e, frameworks & storage formats.
+For model deployment, ForestFlow supports models described via [MLflow Model](https://mlflow.org/docs/latest/models.html) format which allows for different flavors i..e, frameworks & storage formats.
 
-ForestFlow also supports a BASIC REST API for model deployment as well that mimics the MLFLow Model format but does not require it.
+ForestFlow also supports a BASIC REST API for model deployment as well that mimics the MLflow Model format but does not require it.
 
 ## Inference
 For inference, we’ve adopted a similar approach. ForestFlow provides 2 interfaces for maximum flexibility; 

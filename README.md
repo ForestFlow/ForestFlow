@@ -65,9 +65,9 @@ The main concerns for creating ForestFlow can be summarized as:
    - Most of all, we wanted repeatability. We didn't want to re-invent the wheel once we had support for a specific framework. 
 
 ## Model Deployment
-For model deployment, ForestFlow supports models described via [MLFLow Model](https://mlflow.org/docs/latest/models.html) format which allows for different flavors i..e, frameworks & storage formats.
+For model deployment, ForestFlow supports models described via [MLfLow Model](https://mlflow.org/docs/latest/models.html) format which allows for different flavors i..e, frameworks & storage formats.
 
-ForestFlow also supports a BASIC REST API for model deployment as well that mimics the MLFLow Model format but does not require it.
+ForestFlow also supports a BASIC REST API for model deployment as well that mimics the MLflow Model format but does not require it.
 
 ## Inference
 For inference, we’ve adopted a similar approach. ForestFlow provides 2 interfaces for maximum flexibility; 
@@ -80,7 +80,7 @@ Relying on standards, for example using GraphPipe’s specification means immedi
 Please visit the [quickstart guide](./docs/quickstart.md) to get a quick overview of setting up ForestFlow and an example on inference.
 Also please visit the [Inference](./docs/inference.md) documentation for a deeper dive. 
 
-## Currently Supported model formats (MLFLow flavors)
+## Currently Supported model formats
  - H2O - Mojo Model
  - TensorFlow & Keras - Planned
  - PFA - Planned
