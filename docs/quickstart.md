@@ -37,10 +37,10 @@ Let's bring up a single-node local instance of ForestFlow
    This is where ForestFlow will store its state if using default persistence plugin for local install
    See what the version number is defined as in the property `forestflow-latest.version` in [pom.xml](https://github.com/dreamworksanimation/ForestFlow/tree/master/pom.xml)
    
-   Assuming it's 0.2.2, run the following
+   Assuming it's 0.2.3, run the following
     
    ```bash
-   export FORESTFLOW_VERSION=0.2.2
+   export FORESTFLOW_VERSION=0.2.3
    ./../buildah/run-local.sh
    ```
    This should being up ForestFlow on port `8090`
