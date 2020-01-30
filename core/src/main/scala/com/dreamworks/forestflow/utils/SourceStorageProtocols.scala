@@ -156,6 +156,8 @@ object SourceStorageProtocols extends StrictLogging {
       val tag = versionFromFQRV(fqrv)
       logger.debug(s"Checking out tag: $tag")
       gitRepo.checkout().setName(tag).call()
+      gitRepo.getRepository.close()
+      gitRepo.close()
       logger.debug(s"Checkout complete for tag: $tag")
     }
   }

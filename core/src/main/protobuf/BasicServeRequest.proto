@@ -29,11 +29,15 @@ option (scalapb.options) = {
 
 message BasicServeRequest {
     option (scalapb.message).extends = "ServeRequest";
+
     /**
       * git path git@github.com:ORG/project.git#v1.10.15.18 (v.Contract.releaseVersion)
       */
     required string path = 1;
 
+    /**
+      * Relative artifact path. Relative to `path`
+      */
     optional string artifact_path = 2;
 
     /**
