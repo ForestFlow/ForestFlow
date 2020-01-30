@@ -210,6 +210,13 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
       serveRequests -= fqrv
       servables -= fqrv
 
+      // Cleanup local storage
+      if (reuseLocalServableCopyOnRecovery) {
+        val localDir = Paths.get(localBasePath, fqrv.toString).toFile
+        if (localDir.exists())
+          FileUtils.deleteDirectory(localDir)
+      }
+
     case CreateServableRequested(serveRequest) =>
       loadServable(serveRequest) { servable =>
         servables += (servable.fqrv -> servable)
