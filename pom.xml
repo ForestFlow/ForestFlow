@@ -30,7 +30,7 @@
     </modules>
 
     <properties>
-        <forestflow-latest.version>0.2.2</forestflow-latest.version>
+        <forestflow-latest.version>0.2.3</forestflow-latest.version>
         <scala.compat.version>2.12</scala.compat.version>
         <scala.minor.version>8</scala.minor.version>
         <scala.version>${scala.compat.version}.${scala.minor.version}</scala.version>

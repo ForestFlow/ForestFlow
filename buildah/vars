@@ -13,5 +13,5 @@ FORESTFLOW_BIN=${PATH_HOME}/bin
 FORESTFLOW_DATA="/data"
 
 # Set variables used by all images for this version
-FORESTFLOW_VERSION="0.2.2"
+FORESTFLOW_VERSION="0.2.3"
 FORESTFLOW_FILENAME="forestflow-serving-${FORESTFLOW_VERSION}.jar"

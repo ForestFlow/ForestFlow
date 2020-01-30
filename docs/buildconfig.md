@@ -178,7 +178,7 @@ the target directory of the serving module. Using either the [build-local.sh](ht
 podman_container=$(podman run -d \
 -e "APPLICATION_ENVIRONMENT_CONFIG=local" \
 --net=host \
---name=ff-serving localhost/com.dreamworks.forestflow-serving:0.2.2)
+--name=ff-serving localhost/com.dreamworks.forestflow-serving:0.2.3)
 
 podman logs -f ${podman_container}
 ```

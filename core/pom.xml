@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <h2o.version>3.22.0.2</h2o.version>
+        <h2o.version>3.26.0.10</h2o.version>
         <jgit.version>5.2.1.201812262042-r</jgit.version>
         <jgit-lfs.version>5.2.1.201812262042-r</jgit-lfs.version>
         <circe-yaml.version>0.9.0</circe-yaml.version>
