@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -10,7 +10,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<img src="./resources/forestflow_logo_text.png" alt="ForestFlow Logo" width="478" height="139"/>
+![ForestFlow](docs/_static/forestflow_logo_text.png?raw=true "ForestFlow")
+
 
 ForestFlow is a scalable policy-based cloud-native machine learning model server. ForestFlow strives to strike a balance between the flexibility it offers data scientists and the adoption of standards while reducing friction between Data Science, Engineering and Operations teams.
 
@@ -38,8 +39,8 @@ To achieve these goals, ForestFlow looks to address the proliferation of model s
       - [Creating an OCI-compliant Image](./docs/buildconfig.md#creating-an-oci-compliant-image)
   - [Inference](./docs/inference.md)
       - [Servable implementation interface support matrix](./docs/inference.md#servable-implementation-interface-support-matrix)
-      - [Inference - Using the BASIC REST API](./docs/inference.md#inference---using-the-basic-rest-api)
-      - [Inference - Using the GraphPipe API](./docs/inference.md#inference---using-the-graphpipe-api)
+      - [Inference - Using the BASIC REST API](./docs/inference.md#using-the-basic-rest-api)
+      - [Inference - Using the GraphPipe API](./docs/inference.md#using-the-graphpipe-api)
   - [Concepts](./docs/concepts.md)
       - [A ForestFlow Cluster](./docs/concepts.md#a-forestflow-cluster)
           - [Servable](./docs/concepts.md#servable)
@@ -71,7 +72,7 @@ ForestFlow also supports a BASIC REST API for model deployment as well that mimi
 
 ## Inference
 For inference, we’ve adopted a similar approach. ForestFlow provides 2 interfaces for maximum flexibility; 
-a [BASIC REST API](./docs/inference.md#inference---using-the-basic-rest-api) in addition to 
+a [BASIC REST API](./docs/inference.md#using-the-basic-rest-api) in addition to 
 standardizing on the [GraphPipe](https://oracle.github.io/graphpipe) 
 [API specification](https://oracle.github.io/graphpipe/#/guide/user-guide/spec).
 
