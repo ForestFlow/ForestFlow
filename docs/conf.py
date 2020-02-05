@@ -1,4 +1,4 @@
-# Copyright 2019 DreamWorks Animation L.L.C.
+# Copyright 2020 DreamWorks Animation L.L.C.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,28 +23,24 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+import sphinx_rtd_theme
+
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = u'ForestFlow'
-copyright = u'2019, DreamWorks Animation'
+copyright = u'2020, DreamWorks Animation'
 author = u'DreamWorks Animation'
-
-# The short X.Y version
-version = u''
-# The full version, including alpha/beta/rc tags
-release = u''
-
 
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '1.8'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -52,7 +48,8 @@ release = u''
 extensions = [
     'recommonmark',
     'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'sphinx_rtd_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -61,8 +58,8 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+
 
 # The master toctree document.
 master_doc = 'index'
@@ -80,7 +77,7 @@ language = None
 exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -88,7 +85,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -164,7 +161,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'ForestFlow', u'ForestFlow Documentation',
-     author, 'ForestFlow', 'One line description of project.',
+     author, 'ForestFlow', 'ForestFlow is a policy-driven Machine Learning Model Server.',
      'Miscellaneous'),
 ]
 
