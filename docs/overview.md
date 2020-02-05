@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -35,7 +35,7 @@ ForestFlow also supports a BASIC REST API for model deployment as well that mimi
 
 ## Inference
 For inference, we’ve adopted a similar approach. ForestFlow provides 2 interfaces for maximum flexibility; 
-a [BASIC REST API](./inference.md#inference---using-the-basic-rest-api) in addition to 
+a [BASIC REST API](./inference.md#using-the-basic-rest-api) in addition to 
 standardizing on the [GraphPipe](https://oracle.github.io/graphpipe) 
 [API specification](https://oracle.github.io/graphpipe/#/guide/user-guide/spec).
 
