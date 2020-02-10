@@ -52,7 +52,7 @@ ForestFlow clustering works (custom/local vs K8s), where it persists data, and w
 
 
 The configuration has 3 main sections (defaults, local, and K8s). ForestFlow will always load configuration values from the defaults section.
-ForstFlow will conditionally load the `local` configs or `K8s` based on the value of the environment variable `APPLICATION_ENVIRONMENT_CONFIG`
+ForestFlow will conditionally load the `local` configs or `K8s` based on the value of the environment variable `APPLICATION_ENVIRONMENT_CONFIG`
 
 Example: ```APPLICATION_ENVIRONMENT_CONFIG=local``` will load local configs.
 
@@ -116,7 +116,7 @@ You have a lot of control over how you want to run ForestFlow but we provide a f
     This is good for quick tests but doesn't really offer any cluster-external persistence storage guarantees.
     We recommend overriding this by supplying values for the environment variables controlling `journal` and `snapshot` persistence.
  
-     Exxample: 
+     Example: 
      
      ```
      AKKA_PERSISTENCE_JOURNAL_PLUGIN=jdbc-journal

@@ -97,7 +97,7 @@ within it. Similarly the expiration policy on the Contract applies to these 2 se
 
 ###### FQRV Extraction
 The FQRV is defined at the time of model deployment.
-ForstFlow has support for automatic FQRV extraction for some protocols when fetching a model.
+ForestFlow has support for automatic FQRV extraction for some protocols when fetching a model.
 Git would be a good example. FQRV extraction is supported if a certain tagging convention is used otherwise an FQRV with the Serve deployment request is required. 
 See Servable (Model) Deployment for more details.
 
