@@ -147,7 +147,7 @@ not responding directly to user inference requests.
 
 The following diagram illustrates this scenario with 2 Servables (FOO, and BAR) under the same Contract.
 
-![ForestFlow](_static/forestflow_example_contract_settings.png?raw=true "ForestFlow Contract Settings example")
+![ForestFlow](static/forestflow_example_contract_settings.png?raw=true "ForestFlow Contract Settings example")
 
 
 Currently available [Expiration Policy](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ExpirationPolicies.proto) implementations are:
