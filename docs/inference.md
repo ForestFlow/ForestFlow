@@ -30,7 +30,7 @@ The proto schema is defined in [InferenceRequest.proto](https://github.com/dream
 
 Scoring against a deployed Servable is as simple as passing an [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto) 
 as the POST body to the `score` API
- - API Endpoint: /[organization](./concepts.md#contract)/[project](./concepts.md#contract)/[contract_number](./concepts.md#contract)/*score*
+ - API Endpoint: /[organization](./concepts.md#organization)/[project](./concepts.md#project)/[contract_number](./concepts.md#contract_number)/*score*
  - REST Verb: POST
  - Payload: JSON, as [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
@@ -105,7 +105,7 @@ The BASIC REST API and GraphPipe API have have similar constructs. Please refer 
 for language-specific implementation details.
 
 ForestFlow's GraphPipe endpoint `gp` details:
- - API Endpoint: /[organization](./concepts.md#contract-organization)/[project](./concepts.md#contract-project)/[contract_number](./concepts.md#contract-contract_number)/*gp*
+ - API Endpoint: /[organization](./concepts.md#organization)/[project](./concepts.md#project)/[contract_number](./concepts.md#contract_number)/*gp*
  - REST Verb: POST
  - Payload: [GraphPipe InferRequest](https://oracle.github.io/graphpipe/#/guide/user-guide/spec?id=_321-inferrequest)
 
