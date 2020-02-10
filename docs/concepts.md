@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -49,9 +49,9 @@ This approach allows the user to define a myriad of scenarios. A few examples in
  
 ###### Contract
 A [Contract](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto) is a struct of 3 elements:
- - <a name="contract-organization"></a>organization: String. Top-level organization or namespace the servable belongs to. This of this as your team's name, company, or department name. 
- - <a name="contract-project"></a>project: String. The project under the organization the servable addresses. Think of this as the specific use case this servable addresses.
- - <a name="contract-contract_number"></a>contract_number: Int32. The contract is meant to be used to group multiple model releases. Inference requests are at the contract level.
+ - <a name="organization"></a>organization: String. Top-level organization or namespace the servable belongs to. This of this as your team's name, company, or department name. 
+ - <a name="project"></a>project: String. The project under the organization the servable addresses. Think of this as the specific use case this servable addresses.
+ - <a name="contract_number"></a>contract_number: Int32. The contract is meant to be used to group multiple model releases. Inference requests are at the contract level.
  Different model versions can be deployed to a single Contract and compete for traffic in some way. An inference request always addresses a Contract number within an Organization and Project.
  The defined Routing, Validity and Phase-In policies determine which specific Servable ends up processing an inference request.
  This is essentially where all the routing happens between Servable releases. For example, you could have 2 models deployed with    
@@ -97,7 +97,7 @@ within it. Similarly the expiration policy on the Contract applies to these 2 se
 
 ###### FQRV Extraction
 The FQRV is defined at the time of model deployment.
-ForstFlow has support for automatic FQRV extraction for some protocols when fetching a model.
+ForestFlow has support for automatic FQRV extraction for some protocols when fetching a model.
 Git would be a good example. FQRV extraction is supported if a certain tagging convention is used otherwise an FQRV with the Serve deployment request is required. 
 See Servable (Model) Deployment for more details.
 
@@ -147,7 +147,7 @@ not responding directly to user inference requests.
 
 The following diagram illustrates this scenario with 2 Servables (FOO, and BAR) under the same Contract.
 
-<img src="./../resources/forestflow_example_contract_settings.png" alt="ForestFlow Contract Settings example"/>
+![ForestFlow](_static/forestflow_example_contract_settings.png?raw=true "ForestFlow Contract Settings example")
 
 
 Currently available [Expiration Policy](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ExpirationPolicies.proto) implementations are:

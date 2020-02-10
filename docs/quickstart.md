@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -321,7 +321,7 @@ Let's bring up a single-node local instance of ForestFlow
    
     ForestFlow returns a prediction for each row in addition to the FQRV of the Servable that responded with this prediction.
   
-    ForstFlow allows for multiple Servables to be deployed under the same Contract and for a routing strategy to determine which
+    ForestFlow allows for multiple Servables to be deployed under the same Contract and for a routing strategy to determine which
   Servable responds to user requests and if the remaining Servables shadow the inference request for logging and performance 
   monitoring purposes. See the section on [Creating a Contract](./concepts.md#creating-a-contract) and routing for more details. 
 

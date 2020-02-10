@@ -6,8 +6,8 @@
 ForestFlow
 ======================================
 
-.. image:: ./../resources/forestflow_logo_text.png
-   :target: ./index.rst
+.. image:: _static/forestflow_logo_text.png
+   :target: index.rst
    :alt: ForestFlow
 
 ForestFlow is a scalable policy-based cloud-native machine learning model server. ForestFlow strives to strike a
