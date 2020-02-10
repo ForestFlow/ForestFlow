@@ -10,7 +10,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-![ForestFlow](docs/_static/forestflow_logo_text.png?raw=true "ForestFlow")
+[![ForestFlow](docs/static/forestflow_logo_text.png)](https://dreamworksanimation.github.io/ForestFlow/)
 
 
 ForestFlow is a scalable policy-based cloud-native machine learning model server. ForestFlow strives to strike a balance between the flexibility it offers data scientists and the adoption of standards while reducing friction between Data Science, Engineering and Operations teams.
@@ -25,7 +25,7 @@ To achieve these goals, ForestFlow looks to address the proliferation of model s
 
 # Contents
 
-  - [Overview](./docs/overview.md)
+  - [Overview](./docs/overview)
       - [Why ForestFlow?](./docs/overview.md#why-forestflow)
       - [Model Deployment](./docs/overview.md#model-deployment)
       - [Inference](./docs/overview.md#inference)
