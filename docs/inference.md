@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -19,17 +19,18 @@ This also keeps ForestFlow's API flexible enough to incrementally adapt more int
 ###### Servable implementation interface support matrix:
 
 | Servable Type |  BASIC REST API  |  GraphPipe API  |
-|---|---|---|
-| H2O  | YES  | YES  |
+| ------------- | ---------------- | --------------- |
+|      H2O      |        YES       |       YES       |
  
 
-## Inference - Using the BASIC REST API
+## Using the BASIC REST API
+
 The BASIC REST API relies on ProtoBuf definitions but exposes a JSON interface for ease of use.
 The proto schema is defined in [InferenceRequest.proto](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
 Scoring against a deployed Servable is as simple as passing an [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto) 
 as the POST body to the `score` API
- - API Endpoint: /[organization](./concepts.md#contract-organization)/[project](./concepts.md#contract-project)/[contract_number](./concepts.md#contract-contract_number)/*score*
+ - API Endpoint: /[organization](./concepts.md#organization)/[project](./concepts.md#project)/[contract_number](./concepts.md#contract_number)/*score*
  - REST Verb: POST
  - Payload: JSON, as [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
@@ -99,12 +100,12 @@ http http://${IP}:${PORT}/[organization]/[project]/[contract_number]/score < som
 
 See the [quick start guide](./quickstart.md) for a complete example you can run.
 
-## Inference - Using the GraphPipe API
+## Using the GraphPipe API
 The BASIC REST API and GraphPipe API have have similar constructs. Please refer to the [GraphPipe client documentation](https://oracle.github.io/graphpipe/#/guide/clients/overview) 
 for language-specific implementation details.
 
 ForestFlow's GraphPipe endpoint `gp` details:
- - API Endpoint: /[organization](./concepts.md#contract-organization)/[project](./concepts.md#contract-project)/[contract_number](./concepts.md#contract-contract_number)/*gp*
+ - API Endpoint: /[organization](./concepts.md#organization)/[project](./concepts.md#project)/[contract_number](./concepts.md#contract_number)/*gp*
  - REST Verb: POST
  - Payload: [GraphPipe InferRequest](https://oracle.github.io/graphpipe/#/guide/user-guide/spec?id=_321-inferrequest)
 
@@ -113,7 +114,7 @@ GraphPipe [MetadataRequests](https://oracle.github.io/graphpipe/#/guide/user-gui
 similar to a `/metadata` BASIC API request.
 
 ## Performance considerations for batch size
-While larger inference batches are generally a good thing, if applicable, depending on how ForstFlow is configured and deployed, 
+While larger inference batches are generally a good thing, if applicable, depending on how ForestFlow is configured and deployed, 
 the number of batch records in each request may introduce some undesirable performance or latency implications.
 For example, in shadow mode, where a model is simply shadowing the execution of inference requests and logging results, these models will pickup shadow requests when there are no pending
 high priority user-facing inference requests in their queue. However if the model is then busy with a very large batch shadow mode inference request and it is then required to serve a high priority user-facing
