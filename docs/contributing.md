@@ -20,8 +20,8 @@ DreamWorks Animation.
  - For individuals, please use [..resources/Individual CLA](https://github.com/dreamworksanimation/ForestFlow/tree/master/resources/ForestFlow-Individual-CLA.pdf)
 -->
 
- - For Corporations, please use [Corporate CLA](_static/ForestFlow-Corporate-CLA.pdf "Corporate CLA")
- - For individuals, please use [Individual CLA](_static/ForestFlow-Individual-CLA.pdf "Corporate CLA")
+ - For Corporations, please use [Corporate CLA](static/ForestFlow-Corporate-CLA.pdf "Corporate CLA")
+ - For individuals, please use [Individual CLA](static/ForestFlow-Individual-CLA.pdf "Corporate CLA")
 
 Directions for submission are in CLA.
 
