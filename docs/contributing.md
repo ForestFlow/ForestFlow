@@ -1,5 +1,5 @@
 <!--
-    Copyright 2019 DreamWorks Animation L.L.C.
+    Copyright 2020 DreamWorks Animation L.L.C.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -15,14 +15,19 @@
 Before contributing code to ForestFlow, we ask that you sign a Contributor License Agreement (CLA) and submit it to 
 DreamWorks Animation.
 
+<!--
  - For Corporations, please use [..resouces/Corporate CLA](https://github.com/dreamworksanimation/ForestFlow/tree/master/resources/ForestFlow-Corporate-CLA.pdf)
  - For individuals, please use [..resources/Individual CLA](https://github.com/dreamworksanimation/ForestFlow/tree/master/resources/ForestFlow-Individual-CLA.pdf)
+-->
+
+ - For Corporations, please use [Corporate CLA](_static/ForestFlow-Corporate-CLA.pdf "Corporate CLA")
+ - For individuals, please use [Individual CLA](_static/ForestFlow-Individual-CLA.pdf "Corporate CLA")
 
 Directions for submission are in CLA.
 
 ## Style Guide
 Please follow coding convention and style in each file and in each library when adding new files.
-Please also refer to the overall [project guidelines](./project-guidelines.md) 
+Please also refer to the overall [project guidelines](./project-guidelines.md)
 
 ## Pull Requests
  - All development on ForestFlow should happen in a separate branch with 'develop' as the base branch.
