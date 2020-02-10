@@ -114,7 +114,7 @@ GraphPipe [MetadataRequests](https://oracle.github.io/graphpipe/#/guide/user-gui
 similar to a `/metadata` BASIC API request.
 
 ## Performance considerations for batch size
-While larger inference batches are generally a good thing, if applicable, depending on how ForstFlow is configured and deployed, 
+While larger inference batches are generally a good thing, if applicable, depending on how ForestFlow is configured and deployed, 
 the number of batch records in each request may introduce some undesirable performance or latency implications.
 For example, in shadow mode, where a model is simply shadowing the execution of inference requests and logging results, these models will pickup shadow requests when there are no pending
 high priority user-facing inference requests in their queue. However if the model is then busy with a very large batch shadow mode inference request and it is then required to serve a high priority user-facing
