@@ -1,25 +1,30 @@
 /**
- * Copyright 2020 DreamWorks Animation L.L.C.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2020 DreamWorks Animation L.L.C.
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package com.dreamworks.forestflow.serving.cluster
 
 import java.io.{File, FileReader}
 import java.nio.ByteOrder
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 
+import akka.actor.SupervisorStrategy._
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, ReceiveTimeout, Timers}
 import akka.cluster.Cluster
+import akka.cluster.ddata.Replicator
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
 import akka.persistence._
+import com.dreamworks.forestflow.akka.Supervisor
 import com.dreamworks.forestflow.domain.ServableRegistry._
 import com.dreamworks.forestflow.domain._
 import com.dreamworks.forestflow.serving.MLFlow.MLFlowModelSpec
@@ -36,7 +41,7 @@ import graphpipe.InferRequest
 import io.circe.{Error, yaml}
 import org.apache.commons.io.FileUtils
 import com.dreamworks.forestflow.domain.ShimImplicits._
-import com.dreamworks.forestflow.serving.impl.{BasicH2OMojoLoader, EnvironmentContext}
+import com.dreamworks.forestflow.serving.impl.EnvironmentContext
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
@@ -55,9 +60,16 @@ object ServableRegistry {
 
   /* Utils */
   def props(localBasePath: String): Props =
-    Props(new ServableRegistry(localBasePath))
-      .withMailbox("scoring-priority-mailbox")
-      .withDispatcher("blocking-io-dispatcher")
+    Supervisor.props(
+      {
+        case _: ArithmeticException => Resume
+        case _: java.nio.file.InvalidPathException => Stop
+        case _: Exception => Restart
+      },
+      Props(new ServableRegistry(localBasePath))
+        .withMailbox("scoring-priority-mailbox")
+        .withDispatcher("blocking-io-dispatcher")
+    )
 
   /* Sharding */
   // SEE https://doc.akka.io/docs/akka/2.5/persistence.html#event-adapters
@@ -86,14 +98,14 @@ object ServableRegistry {
 class ServableRegistry(localBasePath: String) extends Actor with ActorLogging with Timers with PersistentActor {
   import ServableRegistry._
 
-  implicit private val dispatcher: ExecutionContextExecutor = context.dispatcher
+//  implicit private val dispatcher: ExecutionContextExecutor = context.dispatcher
+  log.info(s"Using  dispatcher: ${context.dispatcher.toString}")
   timers.startPeriodicTimer(TakeSnapshot, TakeSnapshot, RegistryConfigs.STATE_SNAPSHOT_TRIGGER_SECS seconds)
   private val reuseLocalServableCopyOnRecovery = RegistryConfigs.REUSE_LOCAL_SERVABLE_COPY_ON_RECOVERY
 
   /* activate extensions */
   implicit val cluster: Cluster = Cluster(context.system)
-  // val mediator: ActorRef = DistributedPubSub(context.system).mediator // Solves: How do I send a message to an actor without knowing which node it is running on
-  // val replicator: ActorRef = DistributedData(context.system).replicator
+  val mediator: ActorRef = DistributedPubSub(context.system).mediator
 
   /* Persistent Data - Shard local */
   // TODO Servable Registry is no longer responsible for more than one servable,
@@ -179,7 +191,7 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
 
     case Shutdown | ShardRegion.Passivate =>
       // safe shutdown. Poison Pill doesn't work with persistent actors due to persistent actor stash
-      log.info("Safe shutdown. Poison Pill doesn't work with persistent actors due to persistent actor stash")
+      log.info(s"Safe shutdown of ${self.path} ... ")
       context.stop(self)
 
     /**
@@ -209,12 +221,24 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
     case ServableDeleted(fqrv) =>
       serveRequests -= fqrv
       servables -= fqrv
+      log.info(s"ServableDeleted: $fqrv")
 
       // Cleanup local storage
+      log.info(s"Checking local storage cleanup requirements... Reuse local servable copy on recovery: $reuseLocalServableCopyOnRecovery")
       if (reuseLocalServableCopyOnRecovery) {
-        val localDir = Paths.get(localBasePath, fqrv.toString).toFile
-        if (localDir.exists())
-          FileUtils.deleteDirectory(localDir)
+        val path = Paths.get(localBasePath, fqrv.toString).toString
+
+        // ensure local copy cleanup as dist pub/sub does not necessarily guarantee delivery
+        NodeActor.cleanupLocalStorage(path)
+        mediator ! Publish(classOf[CleanupLocalStorage].getSimpleName, CleanupLocalStorage(path))
+      }
+
+      if (servables.isEmpty){
+        /*To permanently stop entities, a Passivate message must be sent to the parent of the entity actor,
+        otherwise the entity will be automatically restarted after the entity restart backoff specified in
+        the configuration.*/
+        log.info(s"Servable list empty; stopping self ${self.path} by sending passivate message to parent")
+        context.parent ! ShardRegion.Passivate(Shutdown)
       }
 
     case CreateServableRequested(serveRequest) =>
@@ -233,34 +257,25 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
       serveRequests.values.foreach(serveRequest =>
         loadServable(serveRequest) { servable =>
           servables += (servable.fqrv -> servable)
-        } { ex => log.error(s"Exception encountered while loading Servable for serve request $serveRequest. ${ex.printableStackTrace}") }
+          log.info(s"Snapshot offer successfully completed for $metadata")
+          deleteMessages(metadata.sequenceNr)
+        } { ex => log.error(s"Exception encountered while loading Servable from snapshot for serve request $serveRequest. ${ex.printableStackTrace}") }
       )
-      log.info(s"Snapshot offer completed for $metadata")
-      deleteMessages(metadata.sequenceNr)
 
     case SaveSnapshotSuccess(metadata) => log.info(s"Snapshot successful for $metadata")
     case SaveSnapshotFailure(metadata, reason) => log.warning(s"Snapshot failed for $metadata due to ${reason.printableStackTrace}")
     case RecoveryCompleted =>
       // perform init after recovery, before any other messages
-      log.info(s"Recovery completed for $persistenceId")
+      if (recoveryRunning) {
+        log.info(s"Recovery completed for $persistenceId")
+      } else {
+        log.info(s"New actor created for $persistenceId")
+      }
 
     case something => log.warning(s"ServableRegistry - Received something we don't understand $something")
   }
 
   override def preStart(): Unit = log.info(s"Starting actor with persistenceID ${"ServableRegistryActor-" + self.path.name}")
-
-  def handleDeleteServable(fqrv: FQRV, deliveryId: Long, requester: ActorRef): Unit = {
-    servables.get(fqrv) match {
-      case None =>
-        sender() ! Registry_DeleteForUnknownServableRequested(deliveryId, fqrv, requester)
-      case Some(_) =>
-        persist(ServableDeleted(fqrv)) { event =>
-          sender() ! Registry_ValidDeleteReceived(deliveryId, fqrv, requester)
-          receiveRecover(event)
-        }
-
-    }
-  }
 
   /**
     * The main responsibility of an event handler is changing persistent actor state using event data and notifying
@@ -313,6 +328,19 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
       }
     }
 
+    def handleDeleteServable(fqrv: FQRV, deliveryId: Long, requester: ActorRef): Unit = {
+      servables.get(fqrv) match {
+        case None =>
+          sender() ! Registry_DeleteForUnknownServableRequested(deliveryId, fqrv, requester)
+        case Some(_) =>
+          persist(ServableDeleted(fqrv)) { event =>
+            sender() ! Registry_ValidDeleteReceived(deliveryId, fqrv, requester)
+            receiveRecover(event)
+          }
+
+      }
+    }
+
     command match {
       case Registry_UpdateServable(fqrv, settings, deliveryId, requester) => handleUpdateServable(fqrv, settings, deliveryId, requester)
       case Registry_CreateServable(serveRequest, deliveryId, requester) => handleCreateServable(serveRequest, deliveryId, requester)
@@ -323,11 +351,12 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
   private def loadServable(serveRequest: ServeRequestShim)(successAction: Servable => Unit)(failureAction: Throwable => Unit) {
     import cats.syntax.either._
 
-
     val fqrv = serveRequest.getUltimateFQRV
     val protocol: SourceStorageProtocols.EnumVal = SourceStorageProtocols.getProtocolWithDefault(serveRequest.path, SourceStorageProtocols.LOCAL)
 
-    def tryLoad(pre: () => Either[Throwable, Unit] = () => Right(Unit), post: () => Either[Throwable, Unit] = () => Right(Unit))(implicit eCTX: EnvironmentContext) = {
+    def tryLoad(pre: () => Either[Throwable, Unit] = () => Right(Unit),
+                post: () => Either[Throwable, Unit] = () => Right(Unit)
+               )(implicit eCTX: EnvironmentContext) = {
       def load = {
         Try {
           serveRequest match {
@@ -342,8 +371,8 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
                       .getArtifact(loader.getRelativeServablePath, eCTX.localDir.getAbsolutePath),
                     fqrv,
                     s.servableSettings)
-
               }
+
             case s: MLFlowServeRequest =>
               log.info(s"Trying to load an MLFlowServeRequest $s")
               val mlModelPath = Paths.get(eCTX.localDir.getAbsolutePath, "MLmodel").toString
@@ -371,7 +400,6 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
                 fqrv,
                 serveRequest.servableSettings)
           }
-
         }.toEither
       }
 
@@ -383,8 +411,7 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
 
     }
 
-    val servableTry = if (reuseLocalServableCopyOnRecovery) {
-
+    val servableTry = Try (if (reuseLocalServableCopyOnRecovery) {
       val localDirPath = Paths.get(localBasePath, fqrv.toString)
       val localDir = localDirPath.toFile
       implicit val eCTX: EnvironmentContext = EnvironmentContext(localDir)
@@ -405,7 +432,6 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
               )
             case _ =>
               attempt
-
           }
         }
         else {
@@ -449,11 +475,12 @@ class ServableRegistry(localBasePath: String) extends Actor with ActorLogging wi
           }
         }
       )
-    }
+    })
 
     servableTry match {
-      case Right(servable) => successAction(servable)
-      case Left(exception: Throwable) => failureAction(exception)
+      case Success(Right(servable)) => successAction(servable)
+      case Success(Left(exception: Throwable)) => failureAction(exception)
+      case Failure(exception: Throwable) => failureAction(exception)
     }
   }
 
