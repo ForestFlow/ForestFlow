@@ -51,6 +51,7 @@ import scala.util.{Failure, Success, Try}
 object ServableRoutes {
   def props(servableProxyActor: ActorRef)(implicit system: ActorSystem, cluster: Cluster): Props = {
     Props(new ServableRoutes(servableProxyActor))
+      .withDispatcher("blocking-io-dispatcher")
   }
 }
 
@@ -60,10 +61,10 @@ class ServableRoutes(servableProxyActor: ActorRef)(implicit system: ActorSystem,
   with FlatBuffersSupport
   with ScalaPBJsonSupport {
 
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext : ExecutionContext = this.executionContext
-  implicit private val fbb: FlatBufferBuilder = new FlatBufferBuilder(1024)
+  implicit val executionContext : ExecutionContext = context.dispatcher
+  log.info(s"Using  dispatcher: context.dispatcher:  ${context.dispatcher} this.executionContext: ${this.executionContext} ")
 
+  implicit private val fbb: FlatBufferBuilder = new FlatBufferBuilder(1024)
 
   /**
     * The FQRV list of active servables need to be a CRDT.
