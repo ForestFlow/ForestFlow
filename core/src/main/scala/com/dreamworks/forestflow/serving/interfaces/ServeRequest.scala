@@ -52,7 +52,7 @@ trait ServeRequest extends Product {
       protocolOpt match {
         case None => (false, Some(s"path provided doesn't follow a supported protocol: $path"))
         case Some(protocol: SupportsFQRVExtraction) if protocol.hasValidFQRV(path) =>
-          (true, None) // s"App: Received request for protocol with SupportsFQRVExtraction"
+          (true, None) // "Received request for protocol with SupportsFQRVExtraction"
         case Some(p: SourceStorageProtocols.EnumVal) if fqrv.isEmpty => (false, Some(s"FQRV (Fully Qualified Release Version) is required with protocols that don't have implicit FQRV extraction support or where path doesn't follow FQRV extraction requirements"))
         case Some(p: SourceStorageProtocols.EnumVal) => (true, None)
       }

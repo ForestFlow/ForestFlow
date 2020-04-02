@@ -55,7 +55,7 @@ object Main extends StrictLogging {
     // Starting the bootstrap process needs to be done explicitly
     ClusterBootstrap(system).start()
 
-    system.log.info(s"App: Akka Management hostname from InetAddress.getLocalHost.getHostAddress is: ${InetAddress.getLocalHost.getHostAddress}")
+    system.log.info(s"Akka Management hostname from InetAddress.getLocalHost.getHostAddress is: ${InetAddress.getLocalHost.getHostAddress}")
   }
 
   private def preStartup(config: Config): Unit = {
@@ -70,7 +70,7 @@ object Main extends StrictLogging {
     val gp_topic = Try(config.getString("application.kafka-prediction-logger.graphpipe-topic")).toOption
 
     if (basic_topic.isDefined || gp_topic.isDefined){
-      log.info(s"App: Setting up Kafka prediction logging with basic_topic: $basic_topic graphpipe_topic: $gp_topic")
+      log.info(s"Setting up Kafka prediction logging with basic_topic: $basic_topic graphpipe_topic: $gp_topic")
       val predictionLogger = system.actorOf(PredictionLogger.props(basic_topic, gp_topic))
     }
   }
