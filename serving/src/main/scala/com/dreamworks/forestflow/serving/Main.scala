@@ -43,7 +43,7 @@ object Main extends ClusterNodeStartup {
     val gp_topic = Try(config.getString("application.kafka-prediction-logger.graphpipe-topic")).toOption
 
     if (basic_topic.isDefined || gp_topic.isDefined){
-      log.info(s"App: Setting up Kafka prediction logging with basic_topic: $basic_topic graphpipe_topic: $gp_topic")
+      log.info(s"Setting up Kafka prediction logging with basic_topic: $basic_topic graphpipe_topic: $gp_topic")
       val predictionLogger = system.actorOf(PredictionLogger.props(basic_topic, gp_topic))
     }
 
