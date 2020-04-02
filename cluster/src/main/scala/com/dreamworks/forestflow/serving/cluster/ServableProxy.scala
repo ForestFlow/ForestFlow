@@ -139,6 +139,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
   }
 
   implicit private val dispatcher: ExecutionContextExecutor = context.dispatcher
+  log.info(s"Using execution context dispatcher: ${dispatcher.toString}")
   timers.startPeriodicTimer(TakeSnapshot, TakeSnapshot, ProxyConfigs.STATE_SNAPSHOT_TRIGGER_SECS seconds)
 
   implicit val timeout: Timeout = Timeout(5 seconds) // TODO This should not be a global timeout.. Gets vs Scoring!!
@@ -157,17 +158,17 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
       receiveRecover(event)
       self ! EvalActiveServables(Some(event.serveRequest.getUltimateFQRV.contract), contractSettingsUpdated = false)
       postSideEffects(event)
-      log.info(s"App: Finished Creating Servable ${event.serveRequest}")
+      log.info(s"Finished Creating Servable ${event.serveRequest}")
     }
   }
 
   private def persistDeleteServable(fqrvs: List[FQRV], postPersist: ServablesDeleted => Unit = x => Unit, postAction: ServablesDeleted => Unit = x => Unit): Unit = {
     persist(ServablesDeleted(fqrvs)) { event: ServablesDeleted =>
-      log.info(s"App: Deleting servables $fqrvs")
+      log.info(s"Deleting servables $fqrvs")
       postPersist(event)
       receiveRecover(event)
       postAction(event)
-      log.info(s"App: Deleted servables $fqrvs")
+      log.info(s"Deleted servables $fqrvs")
     }
   }
 
@@ -180,7 +181,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
     persist(ServableSettingsUpdated(fqrv, servableSettings)) { event: ServableSettingsUpdated =>
     receiveRecover(event)
       self ! EvalActiveServables(Some(event.fqrv.contract), contractSettingsUpdated = false)
-      log.debug(s"App: Updated servable $fqrv with ${event.servableSettings}")
+      log.debug(s"Updated servable $fqrv with ${event.servableSettings}")
     }
   }
 
@@ -248,7 +249,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
   override def receiveRecover: Receive = {
 
     case ServeRequestValidated(serveRequest: ServeRequestShim) =>
-      log.debug(s"App: receiveRecover(ServeRequestValidated) $serveRequest")
+      log.debug(s"receiveRecover(ServeRequestValidated) $serveRequest")
       createServable(serveRequest)
 
     case ContractSettingsUpdated(contract, contractSettings) =>
@@ -293,7 +294,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
     case commandConfirmation: CommandDeliveryConfirmation => hanldeCommandConfirmation(commandConfirmation)
     case EvalActiveServables(c, su) => evalActiveServables(c, su)
     case TakeSnapshot =>
-      log.info(s"App: Taking snapshot for $persistenceId")
+      log.info(s"Taking snapshot for $persistenceId")
       saveSnapshot(ServableProxyState(
         contracts,
         activeContractServables,
@@ -327,13 +328,13 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
 
   private def distributedData: Receive = {
     case Replicator.UpdateSuccess(ContractsKey, Some(event)) =>
-      log.debug(s"App: Distributed Data Update successful: $event")
+      log.debug(s"Distributed Data Update successful: $event")
 
     case Replicator.UpdateTimeout(ContractsKey, Some(event)) =>
-      log.warning(s"App: Update timeout for $ContractsKey : $event")
+      log.warning(s"Update timeout for $ContractsKey : $event")
 
     case Replicator.StoreFailure(ContractsKey, Some(event)) =>
-      log.error(s"App: Distributed Data Store failed for $ContractsKey : $event")
+      log.error(s"Distributed Data Store failed for $ContractsKey : $event")
 
   }
 
@@ -510,7 +511,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
         case None => persist(ContractSettingsCreated(contract, contractSettings)) { event: ContractSettingsCreated =>
           receiveRecover(event)
           sender() ! ContractCreatedSuccessfully(contract)
-          log.info(s"App: Created contract $contract with ${event.contractSettings}")
+          log.info(s"Created contract $contract with ${event.contractSettings}")
         }
       }
     }
@@ -522,7 +523,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
           receiveRecover(event)
           self ! EvalActiveServables(Some(contract), contractSettingsUpdated = true)
           sender() ! ContractUpdatedSuccessfully(contract)
-          log.info(s"App: Updated contract $contract with ${event.contractSettings}")
+          log.info(s"Updated contract $contract with ${event.contractSettings}")
         }
       }
     }
@@ -553,30 +554,28 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
     def handleCreateServable(serveRequest: ServeRequestShim): Unit = {
       val fqrv = serveRequest.getUltimateFQRV
       servables.get(fqrv) match {
-        case None => create(serveRequest)
-        case Some(settings) => sender() ! ServableAlreadyExistsError(fqrv, settings)
-      }
+        case Some(settings) =>
+          sender() ! ServableAlreadyExistsError(fqrv, settings)
 
-      def create(serveRequest: ServeRequestShim) {
-        val currentContractSettings = contracts.get(fqrv.contract)
-
-        if (serveRequest.contractSettings.isDefined && currentContractSettings.isDefined) {
-          sender() ! ContractValidationError(fqrv.contract, "Contract already exists. Cannot override contract settings with Serve Request. Providing contract settings with a serve request is only valid for new contracts")
-        }
-        else {
-          val request = {
-            if (currentContractSettings.isEmpty && serveRequest.contractSettings.isEmpty) {
-              val contractSettings = domain.ContractSettings(KeepLatest(1), FairPhaseInPctBasedRouter())
-              log.info(s"App: Supplying default contract settings $contractSettings for serve request: $serveRequest")
-              serveRequest.withContractSettings(contractSettings)
+        case None =>
+          val currentContractSettings = contracts.get(fqrv.contract)
+          if (serveRequest.contractSettings.isDefined && currentContractSettings.isDefined) {
+            sender() ! ContractValidationError(fqrv.contract, "Contract already exists. Cannot override contract settings with Serve Request. Providing contract settings with a serve request is only valid for new contracts")
+          }
+          else {
+            val request = {
+              if (currentContractSettings.isEmpty && serveRequest.contractSettings.isEmpty) {
+                val contractSettings = domain.ContractSettings(KeepLatest(1), FairPhaseInPctBasedRouter())
+                log.info(s"Supplying default contract settings $contractSettings for serve request: $serveRequest")
+                serveRequest.withContractSettings(contractSettings)
+              }
+              else
+                serveRequest
             }
-            else
-              serveRequest
+            deliver(servableRegistry.path) { deliveryId =>
+              Registry_CreateServable(request, deliveryId, sender()) // pass original requester so we can respond to them?
+            }
           }
-          deliver(servableRegistry.path) { deliveryId =>
-            Registry_CreateServable(request, deliveryId, sender()) // pass original requester so we can respond to them?
-          }
-        }
       }
     }
 
@@ -600,7 +599,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
         // nothing goes back to the requester yet.. sender is notified only after the event is persisted
         persistCreateServable(serveRequest) { event =>
           requester ! ServableCreatedSuccessfully(event.serveRequest.getUltimateFQRV)
-          log.info(s"App: Created servable ${event.serveRequest}")
+          log.info(s"Created servable ${event.serveRequest}")
         }
 
       case Registry_InvalidCreateServableRequest(_, serveRequest, requester, errorMessage) =>
@@ -615,24 +614,24 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
           persistUpdateServable(fqrv, servableSettings)
 
       case Registry_UpdateForUnknownServableRequested(_, fqrv, requester) =>
-        log.error(s"App: Servable Proxy knows about $fqrv but Servable Registry reported an attempted update for an Unknown Servable")
+        log.error(s"Servable Proxy knows about $fqrv but Servable Registry reported an attempted update for an Unknown Servable")
         requester ! UnknownServable(fqrv)
 
       case Registry_ValidUpdateReceived(_, fqrv, requester) =>
         requester ! ServableUpdatedSuccessfully(fqrv)
 
       case Registry_UpdateWithSameSettingsRequested(_, fqrv, requester) =>
-        log.info(s"App: Update sent to Registry for $fqrv but Registry reports that update doesn't change anything. Reporting back with ServableUpdatedSuccessfully")
+        log.info(s"Update sent to Registry for $fqrv but Registry reports that update doesn't change anything. Reporting back with ServableUpdatedSuccessfully")
         requester ! ServableUpdatedSuccessfully(fqrv)
 
       case Registry_ValidDeleteReceived(_, fqrv, requester) =>
-        log.info(s"App: Registry deleted servable successfully: $fqrv")
+        log.info(s"Registry deleted servable successfully: $fqrv")
 
       case Registry_DeleteForUnknownServableRequested(_, fqrv, requester) =>
         if (recoveryRunning)
-          log.info(s"App: Delete sent for $fqrv from Proxy to Registry during Proxy recovery. Registry reports servable doesn't exist. This is not a concern.")
+          log.info(s"Delete sent for $fqrv from Proxy to Registry during Proxy recovery. Registry reports servable doesn't exist. This is not a concern.")
         else
-          log.error(s"App: Delete sent to Registry for $fqrv but Registry reports servable doesn't exist.")
+          log.error(s"Delete sent to Registry for $fqrv but Registry reports servable doesn't exist.")
     }
   }
 
@@ -651,7 +650,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
     def getUpdatedContractList(contractMap: Map[Contract, List[(FQRV, ServableSettings)]]) = {
 
       def getValidList(candidates: List[(FQRV, ServableSettings)]): List[(FQRV, ServableSettings)] = {
-        log.debug(s"App: Getting valid list of candidates from lifecycle settings ${candidates.map(_._2.policySettings.validityPolicy)}")
+        log.debug(s"Getting valid list of candidates from lifecycle settings ${candidates.map(_._2.policySettings.validityPolicy)}")
         candidates.filter(_._2.policySettings.validityPolicy.forall(rule => rule.isValid))
       }
 
@@ -660,7 +659,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
           val stats = servableMetrics.get(fqrv) match {
             case Some(stat) =>
               val phaseInPct = settings.phaseInPercent(stat)
-              log.debug(s"App: Phase in percent for $fqrv is $phaseInPct")
+              log.debug(s"Phase in percent for $fqrv is $phaseInPct")
               if (stat.becameValidAtMS.isEmpty)
                 stat.copy(becameValidAtMS = Some(System.currentTimeMillis()), currentPhaseInPct = phaseInPct)
               else
@@ -669,7 +668,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
               ServableMetricsImpl.empty()
           }
 
-          log.debug(s"App: Stats for $fqrv are $stats")
+          log.debug(s"Stats for $fqrv are $stats")
 
           persist(ServableMetricsUpdated((fqrv, stats))) { event =>
             receiveRecover(event)
@@ -695,9 +694,9 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
         servables.toList.groupBy(_._1.contract)
     }
 
-    log.debug(s"App: $persistenceId Evaluating active servables for the following contracts: ${contractsToUpdate.toString()}")
+    log.debug(s"$persistenceId Evaluating active servables for the following contracts: ${contractsToUpdate.toString()}")
     val contractListUpdates = getUpdatedContractList(contractsToUpdate)
-    log.debug(s"App: Evaluation results: ${contractListUpdates.toString()}")
+    log.debug(s"Evaluation results: ${contractListUpdates.toString()}")
     // update activeContractServables with valid & unexpired list of servables
     contractListUpdates
       .foreach { case (c, markedServables) =>
@@ -707,10 +706,10 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
         def updateActiveContractServables() = {
           activeContractServables.get(c) match {
             case Some(contractRouter) if !contractSettingsUpdated =>
-              log.debug(s"App: Merging with updated servable metrics  $validServables")
+              log.debug(s"Merging with updated servable metrics  $validServables")
               activeContractServables += (c -> contractRouter.merge(validServables))
             case _ =>
-              log.debug(s"App: Rebuilding with new set of valid servables $validServables")
+              log.debug(s"Rebuilding with new set of valid servables $validServables")
               activeContractServables += (c -> contracts(c).router.create(validServables))
           }
         }
@@ -718,7 +717,7 @@ class ServableProxy(servableRegistry: ActorRef) extends Actor
         if (expiredServables.isEmpty)
           updateActiveContractServables()
         else {
-          log.debug(s"App: Dropping expired servables $expiredServables")
+          log.debug(s"Dropping expired servables $expiredServables")
           persistDeleteServable(expiredServables, { _ =>
             updateActiveContractServables()
           })

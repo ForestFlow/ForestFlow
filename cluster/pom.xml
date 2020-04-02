@@ -41,6 +41,7 @@
 
         <dependency>
             <!--INFO: Requires schema https://github.com/dnvriend/akka-persistence-jdbc/blob/master/src/test/resources/schema/postgres/postgres-schema.sql-->
+            <!-- https://doc.akka.io/docs/akka-persistence-jdbc/3.5.2/#database-schema -->
             <groupId>com.github.dnvriend</groupId>
             <artifactId>akka-persistence-jdbc_${scala.compat.version}</artifactId>
             <version>${akka-persistence-jdbc.version}</version>
@@ -71,6 +72,10 @@
                 </exclusion>
                 <exclusion>
                     <artifactId>akka-persistence_${scala.compat.version}</artifactId>
+                    <groupId>com.typesafe.akka</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>akka-persistence-query_${scala.compat.version}</artifactId>
                     <groupId>com.typesafe.akka</groupId>
                 </exclusion>
                 <exclusion>
