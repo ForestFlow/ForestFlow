@@ -27,7 +27,6 @@
 
     <properties>
         <akka-http-scalapb.version>0.2.1</akka-http-scalapb.version>
-        <heikoseeberger-akka-http-json.version>1.22.0</heikoseeberger-akka-http-json.version>
     </properties>
 
     <dependencies>

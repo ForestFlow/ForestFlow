@@ -18,7 +18,8 @@ import akka.actor.SupervisorStrategy._
 import scala.concurrent.duration._
 
 object Supervisor {
-  def props(decider: Decider) = Props(new Supervisor(decider))
+  def props(decider: Decider): Props = Props(new Supervisor(decider))
+  def props(decider: Decider, props: Props): Props = Props(new Supervisor(decider, Some(props)))
 }
 
 /**
@@ -57,7 +58,7 @@ object Supervisor {
   * @param decider
   * @param props
   */
-class Supervisor(decider: Decider)(implicit props: Option[Props] = None) extends Actor with ActorLogging {
+class Supervisor(decider: Decider, props: Option[Props] = None) extends Actor with ActorLogging {
   var realActor: ActorRef = _
 
   override val supervisorStrategy: OneForOneStrategy =
