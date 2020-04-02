@@ -6,7 +6,7 @@
       "project": "energy_output",
       "contract_number": 0
     },
-    "release_version": "StackedEnsemble_AllModels_AutoML_20191002_103122"
+    "release_version": "StackedEnsemble_AllModels_AutoML_20191002_103122_dup1"
   },
   "flavor": {
     "H2OMojo" : {

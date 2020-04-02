@@ -10,22 +10,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dreamworks.forestflow.serving.impl
+syntax = "proto2";
 
-import scala.collection.mutable
+import "scalapb/scalapb.proto";
 
-object ServableMetricsImpl {
-  def empty() = ServableMetricsImpl(0, 0, System.currentTimeMillis(), mutable.Map.empty[String, Float], None, 0)
-}
+option (scalapb.options) = {
+  package_name: "com.dreamworks.forestflow.domain"
+  flat_package: true
+  single_file: true
+};
 
-case class ServableMetricsImpl(
-  var scoreCount: Long,
-  var shadeCount: Long,
-  var createdAtMS: Long,
-  var performanceMetrics : mutable.Map[String, Float],
-  var becameValidAtMS: Option[Long],
-  var currentPhaseInPct: Int
-) {
-  require(currentPhaseInPct <= 100 && currentPhaseInPct >=0, "currentPhaseInPct can only be set to a value between 0 and 100")
 
+message CleanupLocalStorage {
+    required string path = 1;
 }
