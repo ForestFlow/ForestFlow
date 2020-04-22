@@ -17,8 +17,8 @@ import "FQRV.proto";
 import "Tensor.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
-  import: "com.dreamworks.forestflow.serving.interfaces.ServableMetaData"
+  package_name: "ai.forestflow.domain"
+  import: "ai.forestflow.serving.interfaces.ServableMetaData"
   flat_package: true
   single_file: true
 };

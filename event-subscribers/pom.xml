@@ -16,7 +16,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>forestflow</artifactId>
-        <groupId>com.dreamworks.forestflow</groupId>
+        <groupId>ai.forestflow</groupId>
         <!--suppress MavenPropertyInParent -->
         <version>${forestflow-latest.version}</version>
     </parent>
@@ -32,7 +32,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.dreamworks.forestflow</groupId>
+            <groupId>ai.forestflow</groupId>
             <artifactId>forestflow-core</artifactId>
             <version>${forestflow-latest.version}</version>
         </dependency>

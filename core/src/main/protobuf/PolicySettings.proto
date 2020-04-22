@@ -17,7 +17,7 @@ import "PhaseInPolicies.proto";
 import "ValidityRules.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
+  package_name: "ai.forestflow.domain"
   flat_package: true
   single_file: true
 };

@@ -17,9 +17,9 @@ import "PolicySettings.proto";
 import "LoggingSettings.proto";
 
 option (scalapb.options) = {
-    package_name: "com.dreamworks.forestflow.domain"
+    package_name: "ai.forestflow.domain"
     flat_package: true
-    import: "com.dreamworks.forestflow.serving.impl.{ServableMetricsImpl, ServableSettingsFunctions}"
+    import: "ai.forestflow.serving.impl.{ServableMetricsImpl, ServableSettingsFunctions}"
 };
 
 

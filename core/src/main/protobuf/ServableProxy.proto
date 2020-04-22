@@ -24,10 +24,10 @@ import "InferenceRequest.proto";
 import "Tensor.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain.ServableProxy"
+  package_name: "ai.forestflow.domain.ServableProxy"
   flat_package: true
   single_file: true
-  import: "com.dreamworks.forestflow.serving.interfaces.Protocol._"
+  import: "ai.forestflow.serving.interfaces.Protocol._"
   import: "akka.dispatch.ControlMessage"
 };
 
