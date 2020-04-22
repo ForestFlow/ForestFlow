@@ -25,9 +25,9 @@ import "scalapb/scalapb.proto";
   */
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
-  import: "com.dreamworks.forestflow.serving.impl.ExpirationPolicies._"
-  import: "com.dreamworks.forestflow.serving.impl.ServableMetricsImpl"
+  package_name: "ai.forestflow.domain"
+  import: "ai.forestflow.serving.impl.ExpirationPolicies._"
+  import: "ai.forestflow.serving.impl.ServableMetricsImpl"
   flat_package: true
   single_file: true
   preamble: [

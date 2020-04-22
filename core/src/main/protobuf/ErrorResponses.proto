@@ -21,10 +21,10 @@ import "ServeRequestShim.proto";
 //import "google/protobuf/wrappers.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
+  package_name: "ai.forestflow.domain"
   flat_package: true
   single_file: true
-  import: "com.dreamworks.forestflow.serving.interfaces.HasHTTPStatusCode"
+  import: "ai.forestflow.serving.interfaces.HasHTTPStatusCode"
 };
 
 
