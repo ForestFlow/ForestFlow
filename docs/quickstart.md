@@ -17,7 +17,8 @@ Let's bring up a single-node local instance of ForestFlow
 
     ```bash
     # Create a "local" build
-    ./../buildah/build-local.sh
+    chmod +x ./build/build-local.sh
+    ./build/build-local.sh
     ``` 
 1.  Set application environment to local
 
@@ -41,7 +42,8 @@ Let's bring up a single-node local instance of ForestFlow
     
    ```bash
    export FORESTFLOW_VERSION=0.2.3
-   ./../buildah/run-local.sh
+   chmod +x ./build/run-local.sh
+   ./build/run-local.sh
    ```
    This should being up ForestFlow on port `8090`
    If you get any port conflicts feel free to change the ports used for JMX or for ForestFlow by supplying an environment
@@ -74,7 +76,7 @@ Let's bring up a single-node local instance of ForestFlow
     Using HTTPie
     
     ```bash
-     http 127.0.0.1:8090/contracts/list
+    http 127.0.0.1:8090/contracts/list
     ```
      
 1. Let's deploy a model to ForestFlow
@@ -132,11 +134,11 @@ Let's bring up a single-node local instance of ForestFlow
    We do this using `sed` and passing the result to `httpie`. Alternatively, edit the file and supply the correct path.
    
    ```bash
-    export IP=127.0.0.1
-    export PORT=8090
+   export IP=127.0.0.1
+   export PORT=8090
     
-    # Deploy a model as a Servable to ForestFlow
-    echo $(sed 's:<local path for repo>:'`pwd`':' ./../tests/basicapi-local-h2o.json) | http POST http://${IP}:${PORT}/servable
+   # Deploy a model as a Servable to ForestFlow
+   echo $(sed 's:<local path for repo>:'`pwd`':' ./tests/basicapi-local-h2o.json) | http POST http://${IP}:${PORT}/servable
    ```
    
    If all goes well, you should see a ForestFlow response indicating the Servable was created successfully.
@@ -183,7 +185,7 @@ Let's bring up a single-node local instance of ForestFlow
 
    You can also inspect the Servables under a Contract. In this case, we'll see a single Servable deployed
    ```bash
-    http http://${IP}:${PORT}/samples/energy_output/0/list
+   http http://${IP}:${PORT}/samples/energy_output/0/list
    ``` 
    
    ```json

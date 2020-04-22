@@ -25,10 +25,10 @@ import "scalapb/scalapb.proto";
   */
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
-  import: "com.dreamworks.forestflow.serving.impl.ContractRouters._"
-  import: "com.dreamworks.forestflow.serving.impl.ServableMetricsImpl"
-  import: "com.dreamworks.forestflow.serving.interfaces.RouterType"
+  package_name: "ai.forestflow.domain"
+  import: "ai.forestflow.serving.impl.ContractRouters._"
+  import: "ai.forestflow.serving.impl.ServableMetricsImpl"
+  import: "ai.forestflow.serving.interfaces.RouterType"
   flat_package: true
   single_file: true
 };

@@ -17,7 +17,7 @@
     <!--suppress MavenModelInspection -->
     <parent>
         <artifactId>forestflow</artifactId>
-        <groupId>com.dreamworks.forestflow</groupId>
+        <groupId>ai.forestflow</groupId>
         <!--suppress MavenPropertyInParent -->
         <version>${forestflow-latest.version}</version>
     </parent>
@@ -29,8 +29,7 @@
 
     <properties>
         <h2o.version>3.26.0.10</h2o.version>
-        <jgit.version>5.2.1.201812262042-r</jgit.version>
-        <jgit-lfs.version>5.2.1.201812262042-r</jgit-lfs.version>
+        <jgit.version>5.7.0.202003110725-r</jgit.version>
         <circe-yaml.version>0.9.0</circe-yaml.version>
         <circe-generic.version>0.10.0</circe-generic.version>
         <scalapb.version>0.9.0</scalapb.version>
@@ -42,7 +41,7 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.dreamworks.forestflow</groupId>
+            <groupId>ai.forestflow</groupId>
             <artifactId>forestflow-common</artifactId>
             <version>${forestflow-latest.version}</version>
         </dependency>
@@ -97,7 +96,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.lfs</artifactId>
-            <version>${jgit-lfs.version}</version>
+            <version>${jgit.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/ai.h2o/h2o-genmodel -->
