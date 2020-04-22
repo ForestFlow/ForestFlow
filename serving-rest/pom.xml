@@ -17,7 +17,7 @@
     <!--suppress MavenModelInspection -->
     <parent>
         <artifactId>forestflow</artifactId>
-        <groupId>com.dreamworks.forestflow</groupId>
+        <groupId>ai.forestflow</groupId>
         <!--suppress MavenPropertyInParent -->
         <version>${forestflow-latest.version}</version>
     </parent>
@@ -31,7 +31,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.dreamworks.forestflow</groupId>
+            <groupId>ai.forestflow</groupId>
             <artifactId>forestflow-cluster</artifactId>
             <version>${forestflow-latest.version}</version>
             <exclusions>

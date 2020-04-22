@@ -17,7 +17,7 @@
     <!--suppress MavenModelInspection -->
     <parent>
         <artifactId>forestflow</artifactId>
-        <groupId>com.dreamworks.forestflow</groupId>
+        <groupId>ai.forestflow</groupId>
         <!--suppress MavenPropertyInParent -->
         <version>${forestflow-latest.version}</version>
     </parent>

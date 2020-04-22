@@ -15,7 +15,7 @@ syntax = "proto2";
 import "scalapb/scalapb.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain.ServableRoutes"
+  package_name: "ai.forestflow.domain.ServableRoutes"
   flat_package: true
   single_file: true
 };
