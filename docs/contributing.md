@@ -12,18 +12,6 @@
 -->
 # Contributing
 
-Before contributing code to ForestFlow, we ask that you sign a Contributor License Agreement (CLA) and submit it to 
-DreamWorks Animation.
-
-<!--
- - For Corporations, please use [..resouces/Corporate CLA](https://github.com/dreamworksanimation/ForestFlow/tree/master/resources/ForestFlow-Corporate-CLA.pdf)
- - For individuals, please use [..resources/Individual CLA](https://github.com/dreamworksanimation/ForestFlow/tree/master/resources/ForestFlow-Individual-CLA.pdf)
--->
-
- - For Corporations, please use [Corporate CLA](static/ForestFlow-Corporate-CLA.pdf "Corporate CLA")
- - For individuals, please use [Individual CLA](static/ForestFlow-Individual-CLA.pdf "Corporate CLA")
-
-Directions for submission are in CLA.
 
 ## Style Guide
 Please follow coding convention and style in each file and in each library when adding new files.
@@ -46,13 +34,13 @@ one. Each commit should pass tests in isolation.
 1. Raise a new GitHub issue if one does not already exist. Mention that you intend to work on it.
 1. Use GitHub to Fork your own private repository
 1. Clone your forked repo locally
-1. You can optionally add DreamWork's repo as upstream to make it easier to update your remote and local repos with 
+1. You can optionally add ForestFlow's repo as upstream to make it easier to update your remote and local repos with 
 the latest changes
 
     ```bash
     # cd into your local git copy
     cd ForestFlow
-    git remote add upstream https://github.com/dreamworksanimation/ForestFlow.git
+    git remote add upstream https://github.com/ForestFlow/ForestFlow.git
     ```
 1. Fetch latest from upstream
      ```bash
