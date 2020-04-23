@@ -15,8 +15,8 @@ syntax = "proto2";
 import "scalapb/scalapb.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
-  import: "com.dreamworks.forestflow.serving.interfaces.TensorData"
+  package_name: "ai.forestflow.domain"
+  import: "ai.forestflow.serving.interfaces.TensorData"
   flat_package: true
   single_file: true
 };

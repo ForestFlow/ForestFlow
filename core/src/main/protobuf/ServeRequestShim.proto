@@ -17,10 +17,10 @@ import "MLFlowServeRequest.proto";
 import "BasicServeRequest.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
+  package_name: "ai.forestflow.domain"
   flat_package: true
   single_file: false
-  import: "com.dreamworks.forestflow.serving.interfaces.ServeRequest"
+  import: "ai.forestflow.serving.interfaces.ServeRequest"
 };
 
 

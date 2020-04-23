@@ -26,10 +26,10 @@ import "InferenceRequest.proto";
 //import "google/protobuf/wrappers.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
+  package_name: "ai.forestflow.domain"
   flat_package: true
   single_file: true
-  import: "com.dreamworks.forestflow.serving.interfaces.Protocol.Event"
+  import: "ai.forestflow.serving.interfaces.Protocol.Event"
 };
 
 message ContractSettingsCreated {
