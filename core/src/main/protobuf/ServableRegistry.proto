@@ -21,11 +21,11 @@ import "InferenceRequest.proto";
 import "Tensor.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain.ServableRegistry"
+  package_name: "ai.forestflow.domain.ServableRegistry"
   flat_package: true
   single_file: true
-  import: "com.dreamworks.forestflow.scalapb.CustomTypeMappers.ActorTypeMappers._"
-  import: "com.dreamworks.forestflow.serving.interfaces.Protocol._"
+  import: "ai.forestflow.scalapb.CustomTypeMappers.ActorTypeMappers._"
+  import: "ai.forestflow.serving.interfaces.Protocol._"
   import: "akka.dispatch.ControlMessage"
 };
 

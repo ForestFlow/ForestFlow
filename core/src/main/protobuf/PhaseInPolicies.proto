@@ -20,15 +20,15 @@ import "scalapb/scalapb.proto";
   */
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
-  import: "com.dreamworks.forestflow.serving.impl.PhaseInPolicies._"
-  import: "com.dreamworks.forestflow.serving.impl.ServableMetricsImpl"
+  package_name: "ai.forestflow.domain"
+  import: "ai.forestflow.serving.impl.PhaseInPolicies._"
+  import: "ai.forestflow.serving.impl.ServableMetricsImpl"
   flat_package: true
   single_file: true
 //  preamble: "sealed trait BaseMessage"
   preamble: [
     "sealed trait PhaseInPolicy {",
-    "    this: com.dreamworks.forestflow.domain.PhaseInPolicyShim =>",
+    "    this: ai.forestflow.domain.PhaseInPolicyShim =>",
     "    /**",
     "      *",
     "      * @return 0 - 100 defining the percentage of events to send to this model",
