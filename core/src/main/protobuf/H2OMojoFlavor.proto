@@ -18,11 +18,11 @@ import "ServableSettings.proto";
 import "ContractSettings.proto";
 
 option (scalapb.options) = {
-  package_name: "com.dreamworks.forestflow.domain"
+  package_name: "ai.forestflow.domain"
   flat_package: true
   single_file: false
-  import: "com.dreamworks.forestflow.serving.impl.BasicH2OMojoLoader"
-  import: "com.dreamworks.forestflow.serving.interfaces.Loader"
+  import: "ai.forestflow.serving.impl.BasicH2OMojoLoader"
+  import: "ai.forestflow.serving.interfaces.Loader"
 };
 
 
