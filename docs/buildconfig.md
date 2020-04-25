@@ -183,5 +183,5 @@ podman_container=$(podman run -d \
 podman logs -f ${podman_container}
 ```
 
-See [https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh) for another example of using Podman (similar to docker) and 
+See [https://github.com/dreamworksanimation/ForestFlow/tree/master/build/run-local-container.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh) for another example of using Podman (similar to docker) and 
 supplying some overrides for Persistence and Kafka logging.
