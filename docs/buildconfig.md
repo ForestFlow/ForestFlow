@@ -12,7 +12,7 @@
 -->
 # Getting started
 We provide scripts to build ForestFlow for use in local, or custom distributed clusters, or specifically for [Kubernetes](https://kubernetes.io/).
-The result of a build is a JAR with all dependencies included. We also provide [Buildah](https://buildah.io/) [scripts](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh) for building OCI-compatible images that you can run
+The result of a build is a JAR with all dependencies included. We also provide [Buildah](https://buildah.io/) [scripts](https://github.com/dreamworksanimation/ForestFlow/tree/master/build/buildah.sh) for building OCI-compatible images that you can run
 using container engines such as [podman](https://podman.io/) and [docker](https://www.docker.com/) etc..
 
 <a name="build-requirements">Build requirements:</a>
@@ -29,13 +29,13 @@ Have a look at [Build Requirements](#build-requirements) for essential build dep
 ###### Create JAR without Kubernetes dependencies
 
 ```bash
-./../buildah/.build-local.sh
+./../build/.build-local.sh
 ``` 
 
 ###### Create a JAR with Kubernetes dependencies
 This will include Kubernetes-specific dependencies for cluster discovery
 ```bash
-./../buildah/.build-kubernetes.sh
+./../build/.build-kubernetes.sh
 ``` 
 
 There is no harm in using the Kubernetes-specific build locally however note that your JAR file will have more
@@ -163,16 +163,16 @@ You can build and run ForestFlow in a container (docker, podman) and we provide 
 See [Image Build Requirements](#image-build-requirement) for details on requirements for building a ForestFlow image.
 We may supply a standard image in a container registry like docker.io at some point in the future. 
  
-ForestFlow comes bundled with a [Buildah](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh) script that assumes a successful build is available in 
-the target directory of the serving module. Using either the [build-local.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-local.sh) or 
-[build-kubernetes.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-kubernetes.sh) scripts will provide just that. 
+ForestFlow comes bundled with a [Buildah](https://github.com/dreamworksanimation/ForestFlow/tree/master/build/buildah.sh) script that assumes a successful build is available in 
+the target directory of the serving module. Using either the [build-local.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/build/build-local.sh) or 
+[build-kubernetes.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/build/build-kubernetes.sh) scripts will provide just that. 
 
 ```bash
 # Create a "local" build
-./../buildah/build-local.sh
+./../build/build-local.sh
 
 # Compile into an OCI-compliant image using Buildah
-./../buildah/buildah.sh
+./../build/buildah.sh
 
 # Use podman (or docker) to run ForestFlow in a container locally
 podman_container=$(podman run -d \
@@ -183,5 +183,5 @@ podman_container=$(podman run -d \
 podman logs -f ${podman_container}
 ```
 
-See [https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh) for another example of using Podman (similar to docker) and 
+See [https://github.com/dreamworksanimation/ForestFlow/tree/master/build/run-local-container.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/build/run-local-container.sh) for another example of using Podman (similar to docker) and 
 supplying some overrides for Persistence and Kafka logging.
