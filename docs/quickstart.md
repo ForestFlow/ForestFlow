@@ -36,7 +36,7 @@ Let's bring up a single-node local instance of ForestFlow
 1. Bring up ForestFlow
    
    This is where ForestFlow will store its state if using default persistence plugin for local install
-   See what the version number is defined as in the property `forestflow-latest.version` in [pom.xml](https://github.com/dreamworksanimation/ForestFlow/tree/master/pom.xml)
+   See what the version number is defined as in the property `forestflow-latest.version` in [pom.xml](https://github.com/ForestFlow/ForestFlow/tree/master/pom.xml)
    
    Assuming it's 0.2.3, run the following
     
@@ -87,7 +87,7 @@ Let's bring up a single-node local instance of ForestFlow
    
    As the tutorial explains, the goal is to predict the energy output given some input features.
    
-   Have a look at the servable deployment definition [https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-local-h2o.json](https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-local-h2o.json)
+   Have a look at the servable deployment definition [https://github.com/ForestFlow/ForestFlow/tree/master/tests/basicapi-local-h2o.json](https://github.com/ForestFlow/ForestFlow/tree/master/tests/basicapi-local-h2o.json)
    ```json
     {
       "path": "file://<local path for repo>/tests",
@@ -241,7 +241,7 @@ Let's bring up a single-node local instance of ForestFlow
     Notice the Servable takes an input Tensor of type Float64 with 4 fields: TemperatureCelcius, ExhaustVacuumHg, AmbientPressureMillibar, and RelativeHumidity
   
     Scoring against the model represented by the Servable we deployed is fairly simply.    
-    Have a look at the contents of [tests/basicapi-score-1.json ](https://github.com/dreamworksanimation/ForestFlow/tree/master/tests/basicapi-score-1.json)
+    Have a look at the contents of [tests/basicapi-score-1.json ](https://github.com/ForestFlow/ForestFlow/tree/master/tests/basicapi-score-1.json)
   
     ```json
     {
