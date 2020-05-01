@@ -21,7 +21,7 @@ Each Servable is uniquely identified by its Fully Qualified Release Version or `
 #### Fully Qualified Release Version (FQRV)
 The FQRV is one of the most important concepts within ForestFlow because routing and scoring (inference) is based on the FQRV.
 
-The [FQRV](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto) consists of a `contract: Contract` and `release_version: String`.
+The [FQRV](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto) consists of a `contract: Contract` and `release_version: String`.
 
 ###### Release Version
 The `release_version` along with the Contract **MUST** uniquely identify a deployed Servable/Model.
@@ -48,7 +48,7 @@ This approach allows the user to define a myriad of scenarios. A few examples in
    This allows for quick rollback to Servables still in Shadow mode in case something unexpected happens with the latest deployment.
  
 ###### Contract
-A [Contract](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto) is a struct of 3 elements:
+A [Contract](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto) is a struct of 3 elements:
  - <a name="organization"></a>organization: String. Top-level organization or namespace the servable belongs to. This of this as your team's name, company, or department name. 
  - <a name="project"></a>project: String. The project under the organization the servable addresses. Think of this as the specific use case this servable addresses.
  - <a name="contract_number"></a>contract_number: Int32. The contract is meant to be used to group multiple model releases. Inference requests are at the contract level.
@@ -103,7 +103,7 @@ See Servable (Model) Deployment for more details.
 
 ## Servable (Model) Deployment
 Deploying a model and creating a Servable in ForestFlow is a simple REST API call with parameters to configure policies for the Contract and Servable.
-If this is a new use case/Contract, the general recommendation is to first define and create the [Contract](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto) and [Contract Settings](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto) for the use case the Servable is meant to be deployed to.
+If this is a new use case/Contract, the general recommendation is to first define and create the [Contract](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/Contract.proto) and [Contract Settings](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto) for the use case the Servable is meant to be deployed to.
 
 #### Creating a Contract
 Recall that a Contract consists of potentially more than one Servable. The Contract Settings determine how a Contract routes traffic between its underlying Servables in 
@@ -111,7 +111,7 @@ addition to when it considers a Servable expired (expiration policy) and removes
 
  - API Endpoint: contract/[organization](#contract-organization)/[project](#contract-project)/[contract_number](#contract-contract_number)
  - REST Verb: POST for new Contracts. PUT for updating existing Contracts
- - Payload: JSON, as [Contract Settings](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto)
+ - Payload: JSON, as [Contract Settings](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ContractSettings.proto)
 
 The payload is a JSON that represents Contract Settings which defines an expiration policy and router.
 The `Expiration Policy` governs how and when Servables are marked as expired and removed from ForestFlow and the Contract.
@@ -150,22 +150,22 @@ The following diagram illustrates this scenario with 2 Servables (FOO, and BAR) 
 ![ForestFlow](static/forestflow_example_contract_settings.png?raw=true "ForestFlow Contract Settings example")
 
 
-Currently available [Expiration Policy](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ExpirationPolicies.proto) implementations are:
- - [KeepLatest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala)
+Currently available [Expiration Policy](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ExpirationPolicies.proto) implementations are:
+ - [KeepLatest](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala)
  
    Keeps a supplied number of valid (active) Servables based on date Servable became active. Keeps most recently active.
    
- - [KeepTopRanked](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala)
+ - [KeepTopRanked](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ExpirationPolicies.scala)
  
    Keeps a supplied number of Servables based on a performance metric. 
  
  
-Currently available [Router](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ContractRouters.proto) implementations are:
- - [FairPhaseInPctBasedRouter](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/FairPhaseInPctBasedRouter.scala)
+Currently available [Router](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ContractRouters.proto) implementations are:
+ - [FairPhaseInPctBasedRouter](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/FairPhaseInPctBasedRouter.scala)
    
    Equally distributes traffic between valid (active) Servables based on their Phase In Percent.
    
- - [LatestPhaseInPctBasedRouter](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/LatestPhaseInPctBasedRouter.scala)
+ - [LatestPhaseInPctBasedRouter](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ContractRouters/LatestPhaseInPctBasedRouter.scala)
    
    Routes 100% of traffic to the latest (last to become valid) servable.
    If latest servable is not at 100% phase in, this acts a lot like a FairPhaseInPctBasedRouter against the latest 2
@@ -176,12 +176,12 @@ Currently available [Router](https://github.com/dreamworksanimation/ForestFlow/t
 #### Creating a Servable
 After [setting up a Contract](#creating-a-contract), deploying a model and creating a Servable is a simple REST call.
 The REST call can either reference where the MLmodel yaml file is if using [MLFlow](https://mlflow.org)
-In ForestFlow this is referred to as the [MLFlowServeRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/MLFlowServeRequest.proto).
+In ForestFlow this is referred to as the [MLFlowServeRequest](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/MLFlowServeRequest.proto).
 
 OR
 
 Simply provide all necessary information as part of the request itself as defined here.
-In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/BasicServeRequest.proto). We start off with the BasicServeRequest and then expand on how the MLFlowServeRequest differs.
+In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/BasicServeRequest.proto). We start off with the BasicServeRequest and then expand on how the MLFlowServeRequest differs.
 
  - BasicServeRequest
  
@@ -231,7 +231,7 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
      Local filesystem: file:///my-models/DreamWorks/schedule/0
      Git: git@github.com:<USER or Org>/<project>.git#v<Numeric Contract Number>.<Release Version>
      
-     ForestFlow currently supports the following [StorageProtocols](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/utils/SourceStorageProtocols.scala):
+     ForestFlow currently supports the following [StorageProtocols](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/utils/SourceStorageProtocols.scala):
       - local file system
       - git (with support for Git LFS)
       
@@ -252,7 +252,7 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
      can be found which can be something else entirely.
 
      
-   - **[fqrv](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto)**: Required if the path doesn't support FQRV extraction and the path provided doesn't follow an extraction pattern.
+   - **[fqrv](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/FQRV.proto)**: Required if the path doesn't support FQRV extraction and the path provided doesn't follow an extraction pattern.
    
      Currently Git is the only protocol that supports FQRV extraction.
       - Git User/Org maps to fqrv.contract.organization
@@ -265,7 +265,7 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
         
         An FQRV can always be provided even if a path supports FQRV extraction. The explicitly provided FQRV takes precedence.
 
-   - **[flavor](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Flavors.proto)**: The Servable flavor and flavor properties
+   - **[flavor](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/Flavors.proto)**: The Servable flavor and flavor properties
     
       ForestFlow currently supports:
        - H2O Flavor: The H2O flavor only works with the mojo export format. The H2O flavor has the following format:
@@ -285,32 +285,32 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
        
        version: The H2O version used to generate the MOJO file. This is intended for future compatibility requirements.
        
-   - **[servableSettings](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ServableSettings.proto)**: Define a validity and phase in policy.
+   - **[servableSettings](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ServableSettings.proto)**: Define a validity and phase in policy.
    
-      - **[validityPolicy](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto)**: Tells ForestFlow when to consider this Servable valid (active).
+      - **[validityPolicy](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto)**: Tells ForestFlow when to consider this Servable valid (active).
       A Servable is only ever considered for inference requests if it's deemed "active". 
       
-        Currently Supported [Validity Policies](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto):
-         - [ImmediatelyValid](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
-         - [NeverValid](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
-         - [TimeBasedValidity](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
-         - [PerformanceBasedValidity](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
-         - [MinServedEventsBasedValidity](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
+        Currently Supported [Validity Policies](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/ValidityRules.proto):
+         - [ImmediatelyValid](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
+         - [NeverValid](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
+         - [TimeBasedValidity](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
+         - [PerformanceBasedValidity](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
+         - [MinServedEventsBasedValidity](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/ValidityRules.scala)
        
-      - **[phaseInPolicy](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto)**: Tells ForestFlow how to phase-in this Servable, i.e., how to appropriate traffic to this Servable after it becomes valid.
+      - **[phaseInPolicy](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto)**: Tells ForestFlow how to phase-in this Servable, i.e., how to appropriate traffic to this Servable after it becomes valid.
         
-        Currently Supported  [Phase In Policies](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto): 
-         - [ImmediatePhaseIn](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala)
-         - [LinearTimeBasedPhaseIn](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala)
+        Currently Supported  [Phase In Policies](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/PhaseInPolicies.proto): 
+         - [ImmediatePhaseIn](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala)
+         - [LinearTimeBasedPhaseIn](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/serving/impl/PhaseInPolicies.scala)
          
-     - **[loggingSettings](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/LoggingSettings.proto)**: Define when and how a Servable "logs" prediction events which are the result of an inference request.
+     - **[loggingSettings](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/LoggingSettings.proto)**: Define when and how a Servable "logs" prediction events which are the result of an inference request.
      
        Logging Settings takes 3 parameters
         - logLevel (defaults to NONE): `NONE`, `FULL`, or `SAMPLE`
         - keyFeatures `array[string]`: Optional list of strings that tell ForestFlow which config values from an inference request to pull in as the key for the logged prediction record.
           If an inference request provides configs in the config map, the logged Prediction record will attempt to locate the list of keys defined here in the config map and 
           uses the matching key values from the config map to formulate a new "Key" for the Prediction record.
-          The default [Prediction Logger](https://github.com/dreamworksanimation/ForestFlow/tree/master/event-subscribers/src/main/scala/com/dreamworks/forestflow/event/subscribers/PredictionLogger.scala) for ForestFlow is Kafka.
+          The default [Prediction Logger](https://github.com/ForestFlow/ForestFlow/tree/master/event-subscribers/src/main/scala/com/dreamworks/forestflow/event/subscribers/PredictionLogger.scala) for ForestFlow is Kafka.
           The key extracted here, if any, will be used as the Key in a Kafka `ProducerRecord` 
           
         - keyFeaturesSeparator (optional, defaults to "."): The separator to use if multiple keys are provided and their config values are found. 

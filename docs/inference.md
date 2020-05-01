@@ -26,18 +26,18 @@ This also keeps ForestFlow's API flexible enough to incrementally adapt more int
 ## Using the BASIC REST API
 
 The BASIC REST API relies on ProtoBuf definitions but exposes a JSON interface for ease of use.
-The proto schema is defined in [InferenceRequest.proto](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
+The proto schema is defined in [InferenceRequest.proto](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
-Scoring against a deployed Servable is as simple as passing an [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto) 
+Scoring against a deployed Servable is as simple as passing an [InferenceRequest](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto) 
 as the POST body to the `score` API
  - API Endpoint: /[organization](./concepts.md#organization)/[project](./concepts.md#project)/[contract_number](./concepts.md#contract_number)/*score*
  - REST Verb: POST
- - Payload: JSON, as [InferenceRequest](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
+ - Payload: JSON, as [InferenceRequest](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/InferenceRequest.proto)
 
 
 A BASIC REST API Inference Request consists of:
   - A Tensor Schema which maps Tensors and their types to a list of field names
-  - An Array of [Datums](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Tensor.proto) which in turn is an Array of Tensors
+  - An Array of [Datums](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/Tensor.proto) which in turn is an Array of Tensors
   - The Tensors themselves carrying features. A Tensor per data type.
   - A map<string, string> of configs. Configs can be used to supply data used when logging model predictions or to supply additional configuration parameters to Servables for inference requests.
     The keys in the config map are matched on with logging settings keys for logging predictions.
