@@ -12,7 +12,7 @@
 -->
 # Getting started
 We provide scripts to build ForestFlow for use in local, or custom distributed clusters, or specifically for [Kubernetes](https://kubernetes.io/).
-The result of a build is a JAR with all dependencies included. We also provide [Buildah](https://buildah.io/) [scripts](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh) for building OCI-compatible images that you can run
+The result of a build is a JAR with all dependencies included. We also provide [Buildah](https://buildah.io/) [scripts](https://github.com/ForestFlow/ForestFlow/tree/master/buildah/buildah.sh) for building OCI-compatible images that you can run
 using container engines such as [podman](https://podman.io/) and [docker](https://www.docker.com/) etc..
 
 <a name="build-requirements">Build requirements:</a>
@@ -44,10 +44,10 @@ dependencies and is subsequently larger in size.
 #### ForestFlow Configuration
 
 Controlling what ForestFlow does and how it looks for nodes to join as a cluster, or simply come up with a single local
-instance is all based on configuration properties defined in [application.conf](https://github.com/dreamworksanimation/ForestFlow/tree/master/serving/src/main/resources/application.conf)
+instance is all based on configuration properties defined in [application.conf](https://github.com/ForestFlow/ForestFlow/tree/master/serving/src/main/resources/application.conf)
 
 ForestFlow uses [Lightbend Config](https://github.com/lightbend/config), formerly known as Typesafe Config, for all its configuration properties.
-The configuration defined in the [application.conf](https://github.com/dreamworksanimation/ForestFlow/tree/master/serving/src/main/resources/application.conf) controls how 
+The configuration defined in the [application.conf](https://github.com/ForestFlow/ForestFlow/tree/master/serving/src/main/resources/application.conf) controls how 
 ForestFlow clustering works (custom/local vs K8s), where it persists data, and where ([Kafka cluster](https://kafka.apache.org/)) predictions are logged. 
 
 
@@ -94,7 +94,7 @@ You have a lot of control over how you want to run ForestFlow but we provide a f
  - Logging
  
    ForestFlow uses Kafka for prediction logging. To use this, you must supply the following environment variables
-   so ForestFlow knows where to log [Prediction](https://github.com/dreamworksanimation/ForestFlow/tree/master/core/src/main/protobuf/Prediction.proto) messages to:
+   so ForestFlow knows where to log [Prediction](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/protobuf/Prediction.proto) messages to:
    
     - KAFKA_BOOTSTRAP_SERVERS_CONFIG
     
@@ -163,9 +163,9 @@ You can build and run ForestFlow in a container (docker, podman) and we provide 
 See [Image Build Requirements](#image-build-requirement) for details on requirements for building a ForestFlow image.
 We may supply a standard image in a container registry like docker.io at some point in the future. 
  
-ForestFlow comes bundled with a [Buildah](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/buildah.sh) script that assumes a successful build is available in 
-the target directory of the serving module. Using either the [build-local.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-local.sh) or 
-[build-kubernetes.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/build-kubernetes.sh) scripts will provide just that. 
+ForestFlow comes bundled with a [Buildah](https://github.com/ForestFlow/ForestFlow/tree/master/buildah/buildah.sh) script that assumes a successful build is available in 
+the target directory of the serving module. Using either the [build-local.sh](https://github.com/ForestFlow/ForestFlow/tree/master/buildah/build-local.sh) or 
+[build-kubernetes.sh](https://github.com/ForestFlow/ForestFlow/tree/master/buildah/build-kubernetes.sh) scripts will provide just that. 
 
 ```bash
 # Create a "local" build
@@ -183,5 +183,5 @@ podman_container=$(podman run -d \
 podman logs -f ${podman_container}
 ```
 
-See [https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh](https://github.com/dreamworksanimation/ForestFlow/tree/master/buildah/run-local-container.sh) for another example of using Podman (similar to docker) and 
+See [https://github.com/ForestFlow/ForestFlow/tree/master/buildah/run-local-container.sh](https://github.com/ForestFlow/ForestFlow/tree/master/buildah/run-local-container.sh) for another example of using Podman (similar to docker) and 
 supplying some overrides for Persistence and Kafka logging.
