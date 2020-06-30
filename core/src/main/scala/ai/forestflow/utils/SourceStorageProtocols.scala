@@ -17,13 +17,21 @@ import java.net.URI
 import java.nio.file.Paths
 
 import ai.forestflow.domain.{Contract, FQRV}
+import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.stream.alpakka.s3.{ObjectMetadata, S3Attributes, S3Ext, S3Settings, scaladsl}
+import akka.stream.{ActorMaterializer, IOResult}
+import akka.stream.scaladsl.{FileIO, Source}
+import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.{CredentialItem, CredentialsProvider, URIish}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
+import scala.util.{Failure, Success}
 
 /**
   * The different protocols we can understand and support
@@ -85,7 +93,44 @@ object SourceStorageProtocols extends StrictLogging {
   }
 
   case object S3 extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean): Unit = ???
+
+    private implicit val actorSystem: ActorSystem = ActorSystem("Application-s3-stream")
+    private implicit val executionContext: ExecutionContext = actorSystem.dispatcher
+    private implicit val materializer: ActorMaterializer = ActorMaterializer()
+
+    private val s3PathStylePathPattern = "/(.*)/(.*)".r
+
+    def downloadDirectoryImpl(remotePath: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean): Unit = {
+
+      val uri = URI.create(remotePath)
+
+      val (bucket, bucketKey) = uri.getPath match {
+        case s3PathStylePathPattern(bucket, bucketKey) => (bucket, bucketKey)
+        case _ => throw new IllegalArgumentException(s"Invalid url $remotePath, bucket and/or key name information couldn't be extracted from the url's path")
+      }
+
+      val localFilePath = Paths.get(localDirectory.getAbsolutePath, bucketKey)
+
+      val s3Settings = S3Ext(actorSystem).settings
+        .withEndpointUrl(uri.getScheme + "://" + uri.getAuthority)
+        .withPathStyleAccess(true) //this is stop gap solution until we get access to virtual hosting of buckets
+
+      val s3File: Source[Option[(Source[ByteString, NotUsed], ObjectMetadata)], NotUsed] = scaladsl.S3
+        .download(bucket, bucketKey)
+        .withAttributes(S3Attributes.settings(s3Settings))
+
+      //an unsuccessful download operation like bucket and/or object not found would lead to removal of the file from the given local directory
+      val result: Future[IOResult] = s3File
+        .flatMapConcat {
+          case Some((data: Source[ByteString, _], metadata)) => data
+          case _ => Source.empty
+        }.runWith(FileIO.toPath(localFilePath))
+
+      result onComplete {
+        case Success(value) => logger.debug(s"s3 download complete and successfully saved the file locally, written ${value.count / (1024.0 * 1024.0)} mb")
+        case Failure(error) => logger.error(s"s3 download unsuccessful with: ${error.printStackTrace()}")
+      }
+    }
   }
 
   case object HDFS extends EnumVal {
