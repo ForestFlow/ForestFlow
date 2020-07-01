@@ -48,6 +48,7 @@ import io.circe.{Error, yaml}
 import org.apache.commons.io.FileUtils
 import ai.forestflow.domain.ShimImplicits._
 import ai.forestflow.serving.impl.EnvironmentContext
+import akka.stream.ActorMaterializer
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
@@ -109,8 +110,11 @@ class ServableRegistry(localBasePath: String) extends Actor
   with HasPersistence {
   import ServableRegistry._
 
-//  implicit private val dispatcher: ExecutionContextExecutor = context.dispatcher
-  log.info(s"Using  dispatcher: ${context.dispatcher}")
+  implicit private val system : ActorSystem = context.system
+  implicit private val dispatcher: ExecutionContextExecutor = context.dispatcher
+  implicit private val materializer: ActorMaterializer = ActorMaterializer()
+
+  log.info(s"Using  dispatcher: ${dispatcher}")
   timers.startPeriodicTimer(TakeSnapshot, TakeSnapshot, RegistryConfigs.STATE_SNAPSHOT_TRIGGER_SECS seconds)
   private val reuseLocalServableCopyOnRecovery = RegistryConfigs.REUSE_LOCAL_SERVABLE_COPY_ON_RECOVERY
 
@@ -459,7 +463,7 @@ class ServableRegistry(localBasePath: String) extends Actor
                     () => Try {
                       FileUtils.deleteDirectory(localDir)
                       Files.createDirectories(localDirPath)
-                      protocol.downloadDirectory(serveRequest.path, localDir, fqrv, sslVerify)
+                      protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
                     }.toEither
                   )
                 case _ =>
@@ -471,7 +475,7 @@ class ServableRegistry(localBasePath: String) extends Actor
               tryLoad(
                 () => Try {
                   Files.createDirectories(localDirPath)
-                  protocol.downloadDirectory(serveRequest.path, localDir, fqrv, sslVerify)
+                  protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
                 }.toEither
               )
             }
@@ -486,7 +490,7 @@ class ServableRegistry(localBasePath: String) extends Actor
                 log.info(s"Creating local directory: $localDirPath")
                 Files.createDirectories(localDirPath)
                 log.info(s"Create new local copy for [$fqrv]")
-                protocol.downloadDirectory(serveRequest.path, localDir, fqrv, sslVerify)
+                protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
               }.toEither
             )
           }
@@ -497,7 +501,7 @@ class ServableRegistry(localBasePath: String) extends Actor
 
           tryLoad(
             () => Try {
-              protocol.downloadDirectory(serveRequest.path, localDir, fqrv, sslVerify)
+              protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
             }.toEither,
             () => Right {
               try {

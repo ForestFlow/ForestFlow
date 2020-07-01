@@ -21,6 +21,8 @@ trait ServeRequest extends Product {
   this: ServeRequestShim => // if you implement ServeRequest then you must extend ServeRequestShim as well (gotta think about this)
   def path: String
 
+  def artifactPath : Option[String]
+
   protected[this] def protocolOpt = SourceStorageProtocols.getProtocolOption(path)
 
   def fqrv: Option[FQRV]
@@ -28,6 +30,8 @@ trait ServeRequest extends Product {
   def servableSettings: ServableSettings
 
   val contractSettings : Option[ContractSettings]
+
+  def tags : Map[String,String]
 
   def withServableSettings(servableSettings: ServableSettings): ServeRequestShim
   def withContractSettings(contractSettings: ContractSettings): ServeRequestShim
