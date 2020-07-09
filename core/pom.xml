@@ -38,12 +38,30 @@
         <download-maven-plugin.version>1.4.2</download-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <maven-compiler-plugin.verion>3.8.1</maven-compiler-plugin.verion>
+        <akka-stream-alpakka-s3.version>2.0.1</akka-stream-alpakka-s3.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>ai.forestflow</groupId>
             <artifactId>forestflow-common</artifactId>
             <version>${forestflow-latest.version}</version>
+        </dependency>
+
+        <!-- https://doc.akka.io/docs/alpakka/current/s3.html#artifacts -->
+        <dependency>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-stream-alpakka-s3_${scala.compat.version}</artifactId>
+            <version>${akka-stream-alpakka-s3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_${scala.compat.version}</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-xml_${scala.compat.version}</artifactId>
+            <version>${akka-http.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
