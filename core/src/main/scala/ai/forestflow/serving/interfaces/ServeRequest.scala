@@ -21,8 +21,6 @@ trait ServeRequest extends Product {
   this: ServeRequestShim => // if you implement ServeRequest then you must extend ServeRequestShim as well (gotta think about this)
   def path: String
 
-  def artifactPath : Option[String]
-
   protected[this] def protocolOpt = SourceStorageProtocols.getProtocolOption(path)
 
   def fqrv: Option[FQRV]

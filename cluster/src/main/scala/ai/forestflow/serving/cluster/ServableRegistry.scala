@@ -13,6 +13,7 @@
 package ai.forestflow.serving.cluster
 
 import java.io.{File, FileReader}
+import java.net.URI
 import java.nio.ByteOrder
 import java.nio.file.{Files, Path, Paths}
 
@@ -381,135 +382,164 @@ class ServableRegistry(localBasePath: String) extends Actor
 
   private def loadServable(serveRequest: ServeRequestShim)(successAction: Servable => Unit)(failureAction: Throwable => Unit) {
     import cats.syntax.either._
-    val fqrv = serveRequest.getUltimateFQRV
-    log.info(s"LoadServable received for [$fqrv]")
+    val FQRV = serveRequest.getUltimateFQRV
+    log.info(s"LoadServable received for [$FQRV]")
 
-    def tryLoad(pre: () => Either[Throwable, Unit] = () => Right(Unit),
-                post: () => Either[Throwable, Unit] = () => Right(Unit)
-               )(implicit eCTX: EnvironmentContext) = {
-      def load = {
+    def tryLoad(pre: () => Either[Throwable, Any] = () => Right(Unit),
+                post: () => Either[Throwable, Unit] = () => Right(Unit),
+                downloadArtifact: Boolean = false
+               )(implicit eCTX: EnvironmentContext) : Either[Throwable, Servable] = {
+      def load: Either[Throwable, Servable] = {
         Try {
-          serveRequest match {
-            case s: BasicServeRequest =>
-              s.flavor match {
-                case loader: H2OMojoFlavor =>
-                  log.info(s"Trying to load a BasicServeRequest [$s]")
+          val (flavor, dl) = {
 
-                  loader.createServable(
-                    ArtifactReader
-                      .getArtifactReader(s.getArtifactPath)
-                      .getArtifact(loader.getRelativeServablePath, eCTX.localDir.getAbsolutePath),
-                    fqrv,
-                    s.servableSettings)
-              }
+            val protocol: SourceStorageProtocols.EnumVal = SourceStorageProtocols.getProtocolWithDefault(serveRequest.path, SourceStorageProtocols.LOCAL)
+            val download: (String) => Unit = {
+              if (downloadArtifact) {
+                protocol.download(eCTX.remotePath, _, eCTX.localDirectory, eCTX.fqrv, eCTX.sslVerify, eCTX.tags)
+              } else { (_: String) => }
+            }
 
-            case s: MLFlowServeRequest =>
-              log.info(s"Trying to load an MLFlowServeRequest [$s]")
-              val mlModelPath = Paths.get(eCTX.localDir.getAbsolutePath, "MLmodel").toString
-              log.debug(s"Attempting to parse mlModelPath = $mlModelPath")
+            serveRequest match {
+              case s: BasicServeRequest =>
+                (s.flavor, download)
 
-              val json = yaml.parser.parse(new FileReader(mlModelPath))
+              case s: MLFlowServeRequest =>
+                log.info(s"Trying to load an MLFlowServeRequest [$s]")
+                // path in MLFlowServeRequest points to MLmodel file. Download that first
+                download("MLmodel")
+                val mlModelPath = Paths.get(eCTX.localDirectory.getAbsolutePath, "MLmodel").toString
 
-              val model = json
-                .leftMap(err => err: Error)
-                .flatMap(_.as[MLFlowModelSpec])
-                .valueOr(throw _)
+                log.debug(s"Attempting to parse mlModelPath = $mlModelPath")
+                val json = yaml.parser.parse(new FileReader(mlModelPath))
+                val model = json
+                  .leftMap(err => err: Error)
+                  .flatMap(_.as[MLFlowModelSpec])
+                  .valueOr(throw _)
 
-              val (flavorName, servableLoader) = {
-                model.getServableFlavor match {
-                  case Some(flavor) => flavor
-                  case None => throw new IllegalArgumentException(s"No support for any of the servable flavors provided: ${model.flavors}")
+                val (flavorName, flavor) = {
+                  model.getServableFlavor match {
+                    case Some(flavor) => flavor
+                    case None => throw new IllegalArgumentException(s"No support for any of the servable flavors provided: ${model.flavors}")
+                  }
                 }
-              }
-              val loader = servableLoader.asInstanceOf[Loader]
 
+                (flavor, if (!downloadArtifact) { (_: String) => } else {
+                  // Update download requirements as needed if MLmodel file provides a path
+                  (model.path, SourceStorageProtocols.getProtocolWithDefault(model.path.getOrElse(""), SourceStorageProtocols.LOCAL)) match {
+                    case (Some(providedPath), stor) if stor == SourceStorageProtocols.LOCAL =>
+                      // path is relative/local
+                      if (stor.singleFileProtocol) {
+                        protocol.download(Paths.get(eCTX.remotePath, providedPath).toString, _, eCTX.localDirectory, eCTX.fqrv, eCTX.sslVerify, eCTX.tags)
+                      } else {
+                        // TODO do nothing.. but what happens to the provided path?
+                        // Test this scenario with MLmodel yaml file in git and relative path provided
+                        { (_: String) => }
+                      }
+                    case (Some(providedPath), stor) if stor != SourceStorageProtocols.LOCAL =>
+                      stor.download(providedPath, _, eCTX.localDirectory, eCTX.fqrv, eCTX.sslVerify, eCTX.tags)
+
+                    case (None, stor) if stor.singleFileProtocol =>
+                      download
+
+                    case _ =>
+                      { (_: String) => }
+                  }
+                })
+            }
+          }
+
+          flavor match {
+            case loader: H2OMojoFlavor =>
+              log.info(s"Trying to load a ServeRequest [$serveRequest]")
+              dl(loader.getRelativeServablePath)
               loader.createServable(
-                model
-                  .artifactReader
-                  .getArtifact(loader.getRelativeServablePath, eCTX.localDir.getAbsolutePath),
-                fqrv,
+                ArtifactReader
+                  .getLocalFileArtifactReader
+                  .getArtifact(loader.getRelativeServablePath, eCTX.localDirectory.getAbsolutePath),
+                eCTX.fqrv,
                 serveRequest.servableSettings)
           }
+
         }.toEither
       }
 
       for {
-        preOp <- pre().right
+        _ <- pre().right
         servable <- load.right
-        postOp <- post().right
+        _ <- post().right
       } yield servable
 
     }
 
-    servables.get(fqrv) match {
+    servables.get(FQRV) match {
       case Some(servable) =>
-        log.warning(s"Servable already loaded for [$fqrv]. Returning existing servable. Recovery: [$recoveryRunning]")
+        log.warning(s"Servable already loaded for [$FQRV]. Returning existing servable. Recovery: [$recoveryRunning]")
         successAction(servable)
       case None =>
-        val protocol: SourceStorageProtocols.EnumVal = SourceStorageProtocols.getProtocolWithDefault(serveRequest.path, SourceStorageProtocols.LOCAL)
         val servableTry = Try (if (reuseLocalServableCopyOnRecovery) {
-          val localDirPath = Paths.get(localBasePath, fqrv.toString)
+          val localDirPath = Paths.get(localBasePath, FQRV.toString)
           val localDir = localDirPath.toFile
-          implicit val eCTX: EnvironmentContext = EnvironmentContext(localDir)
+//          val download = protocol.download(serveRequest.path, serveRequest.artifactPath, _, localDir, fqrv, sslVerify, serveRequest.tags)
+          implicit val eCTX: EnvironmentContext = EnvironmentContext(serveRequest.path, localDir, FQRV, sslVerify, serveRequest.tags)
 
           if (recoveryRunning) {
             if (localDir.exists()) {
-              log.info(s"Found a local copy while in recovery for [$fqrv]")
+              log.info(s"Found a local copy while in recovery for [$FQRV]")
               val attempt = tryLoad()
               attempt match {
                 case Left(_) =>
-                  log.info(s"Local copy failed to load for [$fqrv], delete and re-download")
+                  log.info(s"Local copy failed to load for [$FQRV], delete and re-download")
                   tryLoad(
-                    () => Try {
+                    pre = () => Try {
                       FileUtils.deleteDirectory(localDir)
                       Files.createDirectories(localDirPath)
-                      protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
-                    }.toEither
+                    }.toEither,
+                    downloadArtifact = true
                   )
                 case _ =>
                   attempt
               }
             }
             else {
-              log.info(s"No local copy for [$fqrv], create one")
+              log.info(s"No local copy for [$FQRV], create one")
               tryLoad(
-                () => Try {
+                pre = () => Try {
                   Files.createDirectories(localDirPath)
-                  protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
-                }.toEither
+                }.toEither,
+                downloadArtifact = true
               )
             }
           } else {
-            log.info(s"Not in recovery, but reuse local selected for [$fqrv]. We're setting up for a new download and keeping the local copy around.")
+            log.info(s"Not in recovery, but reuse local selected for [$FQRV]. We're setting up for a new download and keeping the local copy around.")
             tryLoad(
-              () => Try {
+              pre = () => Try {
                 if (localDir.exists()) {
-                  log.info(s"Deleting local copy for [$fqrv], (something left behind from another failed attempt)")
+                  log.info(s"Deleting local copy for [$FQRV], (something left behind from another failed attempt)")
                   FileUtils.deleteDirectory(localDir)
                 }
                 log.info(s"Creating local directory: $localDirPath")
                 Files.createDirectories(localDirPath)
-                log.info(s"Create new local copy for [$fqrv]")
-                protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
-              }.toEither
+                log.info(s"Create new local copy for [$FQRV]")
+              }.toEither,
+              downloadArtifact = true
             )
           }
         } else {
-          log.info(s"Don't reuse local copy selected for [$fqrv]. Create temporary directory and cleanup after.")
-          val localDir: File = Files.createTempDirectory(Paths.get(localBasePath), fqrv.toString).toFile
-          implicit val eCTX: EnvironmentContext = EnvironmentContext(localDir)
+          log.info(s"Don't reuse local copy selected for [$FQRV]. Create temporary directory and cleanup after.")
+          val localDir: File = Files.createTempDirectory(Paths.get(localBasePath), FQRV.toString).toFile
+//          val download = protocol.download(serveRequest.path, serveRequest.artifactPath, _, localDir, fqrv, sslVerify, serveRequest.tags)
+          implicit val eCTX: EnvironmentContext = EnvironmentContext(serveRequest.path, localDir, FQRV, sslVerify, serveRequest.tags)
 
           tryLoad(
-            () => Try {
-              protocol.downloadDirectory(serveRequest.path, serveRequest.artifactPath, localDir, fqrv, sslVerify, serveRequest.tags)
-            }.toEither,
-            () => Right {
+            post = () => Right {
               try {
                 FileUtils.deleteDirectory(localDir)
               } catch {
                 case ex: Throwable => log.warning(s"Exception while cleaning up local temporary directory: ${ex.printableStackTrace}")
               }
-            }
+            },
+            downloadArtifact = true
           )
         })
 
