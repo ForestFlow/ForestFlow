@@ -43,16 +43,29 @@ import scala.concurrent.duration._
 object SourceStorageProtocols extends StrictLogging {
 
   sealed trait EnumVal {
-    protected def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit
+    protected def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                              (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit
 
-    def downloadDirectory(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+    /**
+     *
+     * @return True if the protocol downloads a single file given an artifact name or an entire directory of files
+     *         for example in the case of Git clones (as opposed to a single raw file from Git) where cloning
+     *         the repo retrieves the contents of the entire repository and not just the artifactName in question.
+     *         This is useful for when indirect links are used for the servable for example in the case of MLFlowModelSpec
+     *         where the yaml file can have a "path" value that further directs us where to get a servable from.
+     *         In the case of Git, this helps us know that we don't need to clone the repo again because the artifact
+     *         would've already been downloaded given a relative "path" in the MLmodel yaml file and original path in
+     *         the MLFlowServeRequest that references a git repository.
+     */
+    def singleFileProtocol : Boolean
+
+    def download(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
       (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
       require(localDirectory.isDirectory, s"Local file path supplied isn't a directory: ${localDirectory.getPath}")
       require(localDirectory.canWrite && localDirectory.canRead, s"Cannot ${List(if (localDirectory.canRead) "read" else "",if (localDirectory.canWrite) "write" else "").mkString(" and ")} to the local directory provided: ${localDirectory.getPath}")
       require(localDirectory.listFiles().length == 0, s"Local directory provided must be empty. Contains ${localDirectory.listFiles().length} files.")
 
-      downloadDirectoryImpl(remotePath, artifactPath ,localDirectory, fqrv, sslVerify, tags)
+      downloadImpl(remotePath, artifactName, localDirectory, fqrv, sslVerify, tags)
     }
   }
 
@@ -87,36 +100,39 @@ object SourceStorageProtocols extends StrictLogging {
 
   /* Protocol implementations */
   case object HTTP extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+    val singleFileProtocol = ???
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
   }
 
   case object HTTPS extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+    val singleFileProtocol = ???
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
   }
 
   case object FTP extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+    val singleFileProtocol = ???
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
   }
 
   case object S3 extends EnumVal {
+    val singleFileProtocol = true
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
 
-
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
-
+/*     TODO: FIXME
       require(artifactPath.isDefined, "artifact_path is currently undefined, this setting serves as the bucket name and needs to be defined to use s3 as source storage protocol")
-      require(!artifactPath.get.matches("[a-z0-9\\.-]+"), "artifact_path setting,because of its use as a s3 bucket name, can only have  lowercase letters, numbers, dots (.), and hyphens (-)")
-      implicit val s3DownloadTimeout: Timeout = Timeout(300 seconds)
+      require(!artifactPath.get.matches("[a-z0-9\\.-]+"), "artifact_path setting,because of its use as a s3 bucket name, can only have  lowercase letters, numbers, dots (.), and hyphens (-)")*/
 
+      implicit val s3DownloadTimeout: Timeout = Timeout(300 seconds)
 
       val uri = URI.create(remotePath.replaceFirst("s3::", ""))
       val regionString = tags.getOrElse("s3_region", "none") // region is either user-defined or is set to "none" as there is no sensible default for this setting
       val s3Region = Region.of(regionString)
 
-      val bucketName = artifactPath.get
+      val bucketName = "FIXME" //TODO artifactPath.get
 
       val (bucketKey : String, isBucketAccessPathStyle : Boolean) = if(uri.getAuthority.contains(bucketName)) {
         (uri.getPath.replaceFirst("/",""), false)
@@ -161,11 +177,13 @@ object SourceStorageProtocols extends StrictLogging {
   }
 
   case object HDFS extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+    val singleFileProtocol = ???
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
   }
 
   case object GIT extends EnumVal with SupportsFQRVExtraction {
+    val singleFileProtocol = false
     private val patternFQRV = "^git@(.*):(.*)/(.*).git#v([0-9]+).(.*)".r
 
     def hasValidFQRV(path: String): Boolean = {
@@ -183,8 +201,8 @@ object SourceStorageProtocols extends StrictLogging {
       }
     }
 
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
       logger.trace(s"downloadDirectoryImpl called with $remotePath $localDirectory $fqrv")
 
       def getRepoBase(path: String): Option[String] = {
@@ -252,8 +270,9 @@ object SourceStorageProtocols extends StrictLogging {
   }
 
   case object LOCAL extends EnumVal {
-    def downloadDirectoryImpl(remotePath: String, artifactPath : Option[String], localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
+    val singleFileProtocol = true
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
+                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
       val file = Paths.get(new URI(remotePath)).toFile
       val sourceDir = file
 
