@@ -22,9 +22,9 @@ import com.typesafe.scalalogging.StrictLogging
 //noinspection ScalaFileName
 /***
   *
-  * @param providedBasePath The providedBasePath is an option.. this is NOT the servable name.. This just means the MLmodel file has a path attribute
+  * @param providedBasePath The providedBasePath is an option.. this is NOT the servable name.
   */
-case class LocalFileArtifactReader(providedBasePath: String) extends ArtifactReader with StrictLogging {
+case class LocalFileArtifactReader(providedBasePath: Option[String]) extends ArtifactReader with StrictLogging {
 
   private def getFile(absoluteArtifactPath: String): File = {
     val file = new File(absoluteArtifactPath)
@@ -37,12 +37,14 @@ case class LocalFileArtifactReader(providedBasePath: String) extends ArtifactRea
   override def getArtifact(artifactName: String, localDirAbsolutePath: String): Array[Byte] = {
     logger.info(s"Getting artifact: $artifactName localDirAbsolutePath: $localDirAbsolutePath providedBasePath: $providedBasePath")
     val absolutePath = {
-      if (providedBasePath.startsWith("file://")){
-        Paths.get(Paths.get(new URI(providedBasePath)).toString, artifactName)
+      val basePath = providedBasePath.getOrElse("")
+      if (basePath.startsWith("file://")){
+        Paths.get(Paths.get(new URI(basePath)).toString, artifactName)
       }
       else
-        Paths.get(localDirAbsolutePath, providedBasePath, artifactName)
+        Paths.get(localDirAbsolutePath, basePath, artifactName)
     }.toString
+    logger.info(s"Reading artifact bytes: $absolutePath")
     Files.readAllBytes(getFile(absolutePath).toPath)
   }
 }
