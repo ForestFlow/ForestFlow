@@ -38,13 +38,13 @@ import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 /**
-  * The different protocols we can understand and support
-  */
+ * The different protocols we can understand and support
+ */
 object SourceStorageProtocols extends StrictLogging {
 
   sealed trait EnumVal {
-    protected def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                              (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit
+    protected def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                              (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit
 
     /**
      *
@@ -57,12 +57,12 @@ object SourceStorageProtocols extends StrictLogging {
      *         would've already been downloaded given a relative "path" in the MLmodel yaml file and original path in
      *         the MLFlowServeRequest that references a git repository.
      */
-    def singleFileProtocol : Boolean
+    def singleFileProtocol: Boolean
 
-    def download(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-      (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
+    def download(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = {
       require(localDirectory.isDirectory, s"Local file path supplied isn't a directory: ${localDirectory.getPath}")
-      require(localDirectory.canWrite && localDirectory.canRead, s"Cannot ${List(if (localDirectory.canRead) "read" else "",if (localDirectory.canWrite) "write" else "").mkString(" and ")} to the local directory provided: ${localDirectory.getPath}")
+      require(localDirectory.canWrite && localDirectory.canRead, s"Cannot ${List(if (localDirectory.canRead) "read" else "", if (localDirectory.canWrite) "write" else "").mkString(" and ")} to the local directory provided: ${localDirectory.getPath}")
       require(localDirectory.listFiles().length == 0, s"Local directory provided must be empty. Contains ${localDirectory.listFiles().length} files.")
 
       downloadImpl(remotePath, artifactName, localDirectory, fqrv, sslVerify, tags)
@@ -76,9 +76,9 @@ object SourceStorageProtocols extends StrictLogging {
   }
 
   /**
-    * Regex patterns that match a string to a protocol.
-    * INFO: This is done for simplicity and may change to adopt a standard library that does this
-    */
+   * Regex patterns that match a string to a protocol.
+   * INFO: This is done for simplicity and may change to adopt a standard library that does this
+   */
   val ProtocolPatterns = List(
     //      (SourceStorageProtocols.GIT, "^(git@.*)".r), // "^(.*).git(.*)".r
     (SourceStorageProtocols.GIT, "^(.*)\\.git(.*)".r), // Covers http(s) and git@ requests as well. Anything that has a .git
@@ -101,57 +101,86 @@ object SourceStorageProtocols extends StrictLogging {
   /* Protocol implementations */
   case object HTTP extends EnumVal {
     def singleFileProtocol = ???
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = ???
   }
 
   case object HTTPS extends EnumVal {
     def singleFileProtocol = ???
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = ???
   }
 
   case object FTP extends EnumVal {
     def singleFileProtocol = ???
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = ???
   }
 
   case object S3 extends EnumVal {
     def singleFileProtocol = true
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
 
-      require(remotePath != null && !remotePath.isEmpty, "path field in the serve request cannot be null or empty" )
-      require(artifactName != null && !artifactName.isEmpty, "artifact name which serves as the s3 bucket name cannot be null or empty" )
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = {
+
+      require(remotePath != null && !remotePath.isEmpty, "path field in the serve request cannot be null or empty")
+      require(artifactName != null && !artifactName.isEmpty, "artifact name which serves as the s3 bucket name cannot be null or empty")
 
       implicit val s3DownloadTimeout: Timeout = Timeout(S3_DOWNLOAD_TIMEOUT_SECS seconds)
 
+      def getAndSetS3Credentials(uri: URI): AwsCredentials = {
 
-      def getAndSetS3Credentials(uri : URI) : AwsCredentials = {
 
-        //the root key is per bucket per bucket-key
+        def getProcessedKey(key: String): String = {
+          key.replaceAll("""[^A-Za-z0-9]""", "_")
+            .replaceAll("""_+""", "_")
+        }
+
+        def getS3Credentials(credentialsRootKey: String): Option[(String, String)] = {
+
+          def getCredential(postFix: String): String = {
+            Try(s3Configs.getString(s"$credentialsRootKey.$postFix"))
+              .getOrElse(System.getenv(s"${credentialsRootKey}_$postFix")) // System.getenv call returns null if the environment variable is not found
+          }
+
+          val accessKeyId = getCredential(S3_ACCESS_KEY_ID_POSTFIX)
+          val secretAccessKey = getCredential(S3_SECRET_ACCESS_KEY_POSTFIX)
+
+          if (accessKeyId != null && secretAccessKey != null) {
+            Some((accessKeyId, secretAccessKey))
+          }
+          else {
+            None
+          }
+        }
+
         //the format for the rootKey needs to be strictly followed - refer to the docs for more information
-        val credentialsRootKey = s"${uri.getAuthority}${uri.getPath}_$artifactName"
-          .replaceAll("""[^A-Za-z0-9]""", "_")
-          .replaceAll("""_+""","_")
+        //the getProcessedKey, is a pre-processing step that applies the pre-defined format
+        val authorityProcessed = getProcessedKey(uri.getAuthority)
+        val pathProcessed = getProcessedKey(uri.getPath)
+        val artifactNameProcessed = getProcessedKey(artifactName)
 
-        val accessKeyId = Try(s3Configs.getString(s"$credentialsRootKey.$S3_ACCESS_KEY_ID_POSTFIX")) match {
-          case Success(value) => value
-          case _              => System.getenv(s"${credentialsRootKey}_$S3_ACCESS_KEY_ID_POSTFIX")
-        }
+        // The keyLevels list represents the hierarchy to be followed from left to right to look for s3 credentials in a fall-back manner
+        // pathProcessed is empty for non-path style bucket access
 
-        val secretAccessKey = Try(s3Configs.getString(s"$credentialsRootKey.$S3_SECRET_ACCESS_KEY_POSTFIX")) match {
-          case Success(value) => value
-          case _              => System.getenv(s"${credentialsRootKey}_$S3_SECRET_ACCESS_KEY_POSTFIX")
-        }
+        val keyLevels = List(
+          s"$authorityProcessed${pathProcessed}_$artifactNameProcessed", //url_port_bucket_key,
+          s"$authorityProcessed$pathProcessed", //url_port_bucket
+          s"$authorityProcessed" //url_port
+        )
 
-        require(accessKeyId != null && !accessKeyId.isEmpty, "S3 storage's 'Access Key' cannot be null or empty. Refer to the docs on how to configure this information" )
-        require(secretAccessKey != null && !secretAccessKey.isEmpty, "S3 storage's 'Access Key Secret' cannot be null or empty. Refer to the docs on how to configure this information" )
+        val (accessKeyId, secretAccessKey) = keyLevels.view
+          .map(getS3Credentials)
+          .collectFirst { case Some(credentials) => credentials } match {
+            case Some((accessKeyId, secretAccessKey)) if !accessKeyId.isEmpty && !secretAccessKey.isEmpty => (accessKeyId, secretAccessKey)
+            case _ => throw new Exception("S3 storage's 'Access Key' and 'Access Key Secret' cannot be null or empty. Refer to the docs on how to configure this information")
+          }
 
-        AwsBasicCredentials.create(accessKeyId,secretAccessKey)
+        AwsBasicCredentials.create(accessKeyId, secretAccessKey)
       }
-
 
 
       val remotePathRegex = """(s3:(?>:http(?>s)?:)?//.*)\s+bucket=([a-z0-9.-]+)\s*(?:region=(.*))?""".r
@@ -166,7 +195,8 @@ object SourceStorageProtocols extends StrictLogging {
       val uri = URI.create(uriString.replaceFirst("s3::", ""))
 
       //the style of the bucket access is determined by the position of the bucket name
-      val isBucketAccessPathStyle : Boolean = if(uri.getAuthority.contains(bucket)) false else true
+      //for the access style to be "path" the bucket-name has to be present in the path of the url
+      val isBucketAccessPathStyle: Boolean = if (uri.getPath.contains(bucket)) true else false
 
       val localFilePath = Paths.get(localDirectory.getAbsolutePath, artifactName)
 
@@ -203,12 +233,14 @@ object SourceStorageProtocols extends StrictLogging {
 
   case object HDFS extends EnumVal {
     def singleFileProtocol = ???
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = ???
+
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = ???
   }
 
   case object GIT extends EnumVal with SupportsFQRVExtraction {
     def singleFileProtocol = false
+
     private val patternFQRV = "^git@(.*):(.*)/(.*).git#v([0-9]+).(.*)".r
 
     def hasValidFQRV(path: String): Boolean = {
@@ -226,8 +258,8 @@ object SourceStorageProtocols extends StrictLogging {
       }
     }
 
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = {
       logger.trace(s"downloadDirectoryImpl called with $remotePath $localDirectory $fqrv")
 
       def getRepoBase(path: String): Option[String] = {
@@ -257,7 +289,7 @@ object SourceStorageProtocols extends StrictLogging {
       import org.eclipse.jgit.api.Git
 
       implicit class JGitImplicits(cloneCommand: CloneCommand) {
-        def withCredentials() : CloneCommand = {
+        def withCredentials(): CloneCommand = {
           if (!sslVerify) {
             val credentialsProvider = new CredentialsProvider {
               override def isInteractive: Boolean = false
@@ -268,7 +300,7 @@ object SourceStorageProtocols extends StrictLogging {
 
               override def get(urIish: URIish, credentialItems: CredentialItem*): Boolean = {
                 credentialItems
-                  .collectFirst{ case item : CredentialItem.YesNoType => item.setValue(true); true}
+                  .collectFirst { case item: CredentialItem.YesNoType => item.setValue(true); true }
                   .getOrElse(false)
               }
             }
@@ -296,8 +328,9 @@ object SourceStorageProtocols extends StrictLogging {
 
   case object LOCAL extends EnumVal {
     def singleFileProtocol = true
-    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String])
-                    (implicit system: ActorSystem, blockingIODispatcher : ExecutionContext, materializer : ActorMaterializer): Unit = {
+
+    def downloadImpl(remotePath: String, artifactName: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags: Map[String, String])
+                    (implicit system: ActorSystem, blockingIODispatcher: ExecutionContext, materializer: ActorMaterializer): Unit = {
       val file = Paths.get(new URI(remotePath)).toFile
       val sourceDir = file
 
