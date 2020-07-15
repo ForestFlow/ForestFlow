@@ -218,14 +218,16 @@ object SourceStorageProtocols extends StrictLogging {
       val result: Future[IOResult] = s3File
         .flatMapConcat {
           case Some((data: Source[ByteString, _], metadata)) => data
-          case _ => Source.empty
+          case _ =>
+            logger.error(s"s3 file not found")
+            throw new Exception("s3 file not found")
         }.runWith(FileIO.toPath(localFilePath))
 
       val ioResult = Await.result(result, s3DownloadTimeout.duration)
 
       ioResult.status match {
-        case Success(_) => logger.whenDebugEnabled(s"s3 download complete and successfully saved the file locally, written ${ioResult.count / (1024.0 * 1024.0)} mb")
-        case Failure(error) => logger.error(s"s3 download unsuccessful with: ${error.printStackTrace()}")
+        case Success(_) => logger.info(s"s3 download complete and successfully saved the file locally, written ${ioResult.count / (1024.0 * 1024.0)} mb")
+        case Failure(error) => logger.error(s"s3 download timed-out with error: ${error.printStackTrace()}")
       }
     }
 
