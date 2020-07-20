@@ -12,12 +12,9 @@
  */
 package ai.forestflow.serving.MLFlow
 
-import ai.forestflow.serving.impl.{LocalFileArtifactReader, MLFlowH2OLoader, UnsupportedServableFlavor}
-import ai.forestflow.serving.interfaces.{ArtifactReader, Loader}
 import cats.syntax.either._
-import ai.forestflow.serving.impl.{LocalFileArtifactReader, MLFlowH2OLoader, UnsupportedServableFlavor}
+import ai.forestflow.serving.impl.{MLFlowH2OLoader, UnsupportedServableFlavor}
 import ai.forestflow.serving.interfaces.ArtifactReader
-import ai.forestflow.utils.SourceStorageProtocols
 import io.circe.generic.extras._
 import io.circe.generic.extras.semiauto.deriveDecoder
 import io.circe.{CursorOp, Decoder, DecodingFailure}
@@ -26,8 +23,8 @@ import ai.forestflow.utils.ThrowableImplicits._
 import org.joda.time.{DateTimeZone, LocalDateTime}
 
 
-case class MLFlowModelSpec(
-  artifactReader: ArtifactReader,
+case class MLFlowModelSpec (
+  path: Option[String],
 
   runId: Option[String],
 
@@ -44,7 +41,7 @@ object MLFlowModelSpec {
     val baseConfig = Configuration.default.withSnakeCaseMemberNames
     baseConfig.copy(transformMemberNames = baseConfig.transformMemberNames andThen {
       // from snake_case in class to snake_case file
-      case "artifact_reader" => "artifact_path"
+      case "path" => "artifact_path"
       case "time_created" => "utc_time_created" // utc_time_created is a string!
       case other => other
     })
@@ -63,11 +60,12 @@ object MLFlowModelSpec {
 
   implicit val decodeMLFlowModel: Decoder[MLFlowModelSpec] = deriveDecoder[MLFlowModelSpec]
 
+  // We do not use this anymore but left here for reference for similar use-cases or if it becomes a requirement later
   implicit val decodeArtifactReaderString: Decoder[ArtifactReader] = Decoder.decodeOption[String].emap { artifactPath: Option[String] =>
     Either.catchNonFatal[ArtifactReader]({
       artifactPath match {
-        case Some(path) => ArtifactReader.getArtifactReader(path)
-        case _ => LocalFileArtifactReader("")
+        case path : Some[String] => ArtifactReader.getArtifactReader(path)
+        case _ => ArtifactReader.getLocalFileArtifactReader
       }
     }
     ).leftMap(t => s"Artifact Reader Decoder Failed: ${t.printableStackTrace}")
