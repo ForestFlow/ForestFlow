@@ -41,7 +41,7 @@ trait H2OLoader extends Loader {
 case class MLFlowH2OLoader(dataPath: String, version: Option[String]) extends H2OLoader {
 
   override def getRelativeServablePath(implicit eCTX: EnvironmentContext): String = {
-    val json = yaml.parser.parse(new FileReader(Paths.get(eCTX.localDirectory.getAbsolutePath, dataPath, "h2o.yaml").toFile)) // TODO move "h2o.yaml" constant to configuration
+    val json = yaml.parser.parse(new FileReader(Paths.get(eCTX.localDir.getAbsolutePath, dataPath, "h2o.yaml").toFile)) // TODO move "h2o.yaml" constant to configuration
 
     val h2oSpec = json
       .leftMap(err => err: Error)

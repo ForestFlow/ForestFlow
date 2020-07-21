@@ -27,19 +27,17 @@ abstract class ArtifactReader() {
     * @return
     */
   def getArtifact(artifactName: String, localDirAbsolutePath: String): Array[Byte]
-  val providedBasePath: Option[String]
+  val providedBasePath: String
 }
 
 object ArtifactReader {
-  /**
-   *
-   * @param providedBasePath The relative or absolute local path to the artifact.
-   *
-   * @return
-   */
-  def getArtifactReader(providedBasePath: Option[String]): ArtifactReader = {
-    LocalFileArtifactReader(providedBasePath)
-  }
+  def getArtifactReader(providedBasePath: String) : ArtifactReader = {
+    val protocol = SourceStorageProtocols.getProtocolWithDefault(providedBasePath, SourceStorageProtocols.LOCAL)
+    protocol match {
+      case SourceStorageProtocols.LOCAL => LocalFileArtifactReader(providedBasePath)
+      //case Protocols.HTTP => HTTPArtifactReader()
+      case _ => LocalFileArtifactReader(providedBasePath)
+    }
 
-  def getLocalFileArtifactReader: ArtifactReader = getArtifactReader(None)
+  }
 }

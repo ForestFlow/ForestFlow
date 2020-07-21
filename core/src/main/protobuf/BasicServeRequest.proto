@@ -36,6 +36,11 @@ message BasicServeRequest {
     required string path = 1;
 
     /**
+      * Relative artifact path. Relative to `path`
+      */
+    optional string artifact_path = 2;
+
+    /**
       * path may use a protocol that supports implicit FQRV extraction otherwise fqrv.proto is required
       */
     optional FQRV fqrv = 3;
