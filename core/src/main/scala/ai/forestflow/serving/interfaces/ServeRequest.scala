@@ -29,8 +29,6 @@ trait ServeRequest extends Product {
 
   val contractSettings : Option[ContractSettings]
 
-  def tags : Map[String,String]
-
   def withServableSettings(servableSettings: ServableSettings): ServeRequestShim
   def withContractSettings(contractSettings: ContractSettings): ServeRequestShim
 

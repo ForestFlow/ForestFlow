@@ -234,10 +234,9 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
      ForestFlow currently supports the following [StorageProtocols](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/utils/SourceStorageProtocols.scala):
       - local file system
       - git (with support for Git LFS)
-      - S3 
       
      ForestFlow is pluggable and there are plans to add support for other protocols
-     such as HDFS, HTTP and FTP in the future.
+     such as HDFS, S3, HTTP and FTP in the future.
      
    - **artifact_path** (optional): An optional string that further defines the root of the model artifact itself.
      
