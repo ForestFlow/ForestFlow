@@ -23,11 +23,13 @@ import scala.util.Try
 object ApplicationEnvironment extends StrictLogging {
 
   def getConfig(env: Option[String]): Config = {
+    val reference = ConfigFactory.defaultReference()
+    logger.debug(reference.root().render)
     val base = ConfigFactory.load()
     val defaults = base.getConfig("defaults")
     env match {
-      case Some(envName) => base.getConfig(envName) withFallback defaults
-      case None => defaults
+      case Some(envName) => base.getConfig(envName) withFallback defaults withFallback reference
+      case None => defaults withFallback reference
     }
   }
 
@@ -50,5 +52,4 @@ object ApplicationEnvironment extends StrictLogging {
   }
   lazy val HTTP_PORT = config.getInt("application.http-port")
   lazy val HTTP_BIND_ADDRESS = Try(config.getString("http-bind-address")).getOrElse("0.0.0.0")
-
 }

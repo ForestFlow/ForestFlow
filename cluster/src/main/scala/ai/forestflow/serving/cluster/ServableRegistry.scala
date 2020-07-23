@@ -13,43 +13,34 @@
 package ai.forestflow.serving.cluster
 
 import java.io.{File, FileReader}
-import java.net.URI
 import java.nio.ByteOrder
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 
-import ai.forestflow.serving.MLFlow.MLFlowModelSpec
-import ai.forestflow.serving.cluster
-import ai.forestflow.serving.config.{ApplicationEnvironment, RegistryConfigs}
-import ai.forestflow.serving.impl.EnvironmentContext
-import ai.forestflow.serving.interfaces.Protocol.{BasicScore, GraphPipeScore, HasSideEffects, Score}
-import ai.forestflow.serving.interfaces.{ArtifactReader, HasBasicSupport, HasGraphPipeSupport, Loader, Servable}
-import akka.actor.SupervisorStrategy._
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, ReceiveTimeout, Timers}
-import akka.cluster.Cluster
-import akka.cluster.ddata.Replicator
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe}
-import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
-import akka.persistence._
 import ai.forestflow.akka.Supervisor
 import ai.forestflow.domain.ServableRegistry._
+import ai.forestflow.domain.ShimImplicits._
 import ai.forestflow.domain._
 import ai.forestflow.serving.MLFlow.MLFlowModelSpec
 import ai.forestflow.serving.cluster
 import ai.forestflow.serving.cluster.Mechanics.TakeSnapshot
-import ai.forestflow.serving.cluster.Sharding.Shutdown
 import ai.forestflow.serving.config.{ApplicationEnvironment, RegistryConfigs}
+import ai.forestflow.serving.impl.EnvironmentContext
 import ai.forestflow.serving.interfaces.Protocol.{BasicScore, GraphPipeScore, HasSideEffects, Score}
-import ai.forestflow.serving.interfaces._
+import ai.forestflow.serving.interfaces.{ArtifactReader, HasBasicSupport, HasGraphPipeSupport, Servable}
 import ai.forestflow.utils.SourceStorageProtocols
 import ai.forestflow.utils.ThrowableImplicits._
+import akka.actor.SupervisorStrategy._
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, ReceiveTimeout, Timers}
+import akka.cluster.Cluster
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.Publish
+import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
+import akka.persistence._
+import akka.stream.ActorMaterializer
 import com.google.protobuf.{ByteString => protoBString}
 import graphpipe.InferRequest
 import io.circe.{Error, yaml}
 import org.apache.commons.io.FileUtils
-import ai.forestflow.domain.ShimImplicits._
-import ai.forestflow.serving.impl.EnvironmentContext
-import akka.stream.ActorMaterializer
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
