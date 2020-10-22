@@ -233,7 +233,7 @@ In ForestFlow this is referred to as the [BasicServeRequest](https://github.com/
      - Git: `git@github.com:<USER or Org>/<project>.git#v<Numeric Contract Number>.<Release Version>`
      - S3: `s3::https://s3-us-west-2.amazonaws.com:8082/my-bucket-1 bucket=my-bucket-1 region=us-west-1`
      
-     ForestFlow currently supports the following [StorageProtocols](https://github.com/ForestFlow/ForestFlow/tree/master/core/src/main/scala/com/dreamworks/forestflow/utils/SourceStorageProtocols.scala):
+     ForestFlow currently supports the following [StorageProtocols](https://github.com/ForestFlow/ForestFlow/blob/master/core/src/main/scala/ai/forestflow/utils/SourceStorageProtocols.scala):
       - Local filesystem
       - Git (with support for Git LFS)
       - S3 (See: [Using S3 storage](https://github.com/ForestFlow/ForestFlow/tree/master/docs/concepts.md#using-s3-storage))
