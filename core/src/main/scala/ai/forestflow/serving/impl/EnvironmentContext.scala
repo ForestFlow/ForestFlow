@@ -14,8 +14,10 @@ package ai.forestflow.serving.impl
 
 import java.io.File
 
+import ai.forestflow.domain.FQRV
+
 case class EnvironmentContext (
-  localDir: File
+  remotePath: String, localDirectory: File, fqrv: FQRV, sslVerify: Boolean, tags : Map[String,String]
 ) {
 
 }
