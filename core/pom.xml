@@ -33,7 +33,7 @@
         <circe-yaml.version>0.9.0</circe-yaml.version>
         <circe-generic.version>0.10.0</circe-generic.version>
         <scalapb.version>0.9.0</scalapb.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <flatbuffers-java.version>1.11.0</flatbuffers-java.version>
         <download-maven-plugin.version>1.4.2</download-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
