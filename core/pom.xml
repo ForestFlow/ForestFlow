@@ -29,7 +29,7 @@
 
     <properties>
         <h2o.version>3.26.0.10</h2o.version>
-        <jgit.version>5.7.0.202003110725-r</jgit.version>
+        <jgit.version>6.6.1.202309021850-r</jgit.version>
         <circe-yaml.version>0.9.0</circe-yaml.version>
         <circe-generic.version>0.10.0</circe-generic.version>
         <scalapb.version>0.9.0</scalapb.version>
