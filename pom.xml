@@ -39,7 +39,7 @@
         <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
         <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
         <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
+        <logback-classic.version>1.2.13</logback-classic.version>
         <scala-logging.version>3.9.2</scala-logging.version>
 
         <akka.version>2.5.23</akka.version>
