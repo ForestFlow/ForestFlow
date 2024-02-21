@@ -28,7 +28,7 @@
     <properties>
         <commons-io.version>2.6</commons-io.version>
         <akka-persistence-jdbc.version>3.5.0</akka-persistence-jdbc.version>
-        <postgresql-driver.version>42.4.1</postgresql-driver.version>
+        <postgresql-driver.version>42.7.2</postgresql-driver.version>
     </properties>
 
     <dependencies>
